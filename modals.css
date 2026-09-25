@@ -1,0 +1,995 @@
+/**
+ * 🪟 modals.css — نظام النوافذ والإشعارات المتكامل v5.0.0
+ * ============================================================================
+ * 📝 المسؤولية: التنسيق البصري الكامل لنظام النوافذ والإشعارات
+
+ * ============================================================================
+ */
+
+/* ==== 1. منع تمرير الصفحة ==== */
+
+.modals-body-locked {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+/* ==== 2. الخلفية الضبابية (Backdrop) ==== */
+.modals-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--modals-backdrop-bg, rgba(0, 0, 0, 0.55));
+  backdrop-filter: var(--modals-backdrop-blur, blur(4px));
+  -webkit-backdrop-filter: var(--modals-backdrop-blur, blur(4px));
+  z-index: 8999;
+  opacity: 0;
+  transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.modals-backdrop--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ==== 3. طبقة تمركز النوافذ (Dialog Layer) ==== */
+.modals-layer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--modals-z-modal, 9000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  padding: var(--space-4, 1rem);
+  /* إضافة دعم المناطق الآمنة لـ iOS */
+  padding-top: max(var(--space-4, 1rem), env(safe-area-inset-top));
+  padding-bottom: max(var(--space-4, 1rem), env(safe-area-inset-bottom));
+}
+
+.modals-layer .modals-dialog,
+.modals-layer .modals-bottomsheet {
+  pointer-events: auto;
+}
+
+/* ==== 5. النوافذ العامة (Dialogs) ==== */
+
+/* ---- 5.1 العنصر الأساسي ---- */
+/*
+ * الإصلاح الرئيسي:
+ * - max-height: 90dvh مع overflow-y: auto على body فقط (لا على dialog)
+ * - حركة الدخول: scale(0.94) + translateY(16px) بـ easing ناعم بدون overshoot
+ * - will-change محدود على transform و opacity فقط
+ */
+.modals-dialog {
+  position: relative;
+  background: var(--surface-light, #ffffff);
+  border-radius: var(--modals-radius, 16px);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.18),
+    0 8px 20px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  /* حالة البداية (مخفي) */
+  opacity: 0;
+  transform: scale(0.94) translateY(16px);
+  transition:
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s cubic-bezier(0.34, 1.3, 0.64, 1);
+  direction: rtl;
+  /* overflow: visible على الـ dialog نفسه لأن الـ body هو من يتمرر */
+  overflow: visible;
+  margin: auto;
+  will-change: transform, opacity;
+}
+
+/* ---- 5.2 حالات الظهور والإخفاء ---- */
+.modals-dialog--visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.modals-dialog--hiding {
+  opacity: 0;
+  transform: scale(0.94) translateY(12px);
+  transition:
+    opacity 0.22s cubic-bezier(0.4, 0, 1, 1),
+    transform 0.22s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ---- 5.3 أحجام النوافذ ---- */
+.modals-dialog--sm { max-width: 400px; }
+.modals-dialog--md { max-width: 520px; }
+.modals-dialog--lg { max-width: 680px; }
+
+.modals-dialog--fullscreen {
+  max-width: min(95vw, 900px);
+  max-height: 95dvh;
+  border-radius: var(--border-radius-lg, 16px);
+}
+
+/* على الشاشات الصغيرة جميع الأحجام تصبح full-width */
+@media (max-width: 520px) {
+  .modals-dialog--sm,
+  .modals-dialog--md,
+  .modals-dialog--lg {
+    max-width: calc(100vw - 2 * var(--space-4, 1rem));
+    max-height: 88dvh;
+    border-radius: var(--border-radius-lg, 16px);
+  }
+}
+
+/* ---- 5.4 رأس النافذة ---- */
+.modals-dialog__header {
+  padding: var(--space-5, 1.25rem) var(--space-5, 1.25rem) var(--space-4, 1rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 0.75rem);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-color-light, rgba(0,0,0,0.08));
+  border-radius: var(--modals-radius, 16px) var(--modals-radius, 16px) 0 0;
+  overflow: hidden;
+}
+
+/* رأس بدون فاصل (للنوافذ التي تحتوي icon في الأعلى) */
+.modals-dialog__header--no-border {
+  border-bottom-color: transparent;
+  padding-bottom: var(--space-2, 0.5rem);
+}
+
+.modals-dialog__title {
+  font-size: var(--font-size-xl, 1.125rem);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin: 0;
+  line-height: 1.3;
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+  /* منع تجاوز النص */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* ---- 5.5 زر إغلاق النافذة (×) ---- */
+.modals-dialog__close-x {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary-light);
+  font-size: 1rem;
+  width: var(--modals-min-touch, 44px);
+  height: var(--modals-min-touch, 44px);
+  min-width: var(--modals-min-touch, 44px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-md, 8px);
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.modals-dialog__close-x:hover {
+  background: var(--hover-light, rgba(102, 126, 234, 0.1));
+  color: var(--text-primary-light);
+}
+
+.modals-dialog__close-x:focus-visible {
+  outline: 2px solid var(--primary, #667eea);
+  outline-offset: 2px;
+}
+
+/* ---- 5.6 جسم النافذة ---- */
+/*
+ * الإصلاح: overflow-y: auto هنا (لا على .modals-dialog)
+ * لإصلاح مشكلة التمرير في iOS.
+ * -webkit-overflow-scrolling: touch لتمرير سلس.
+ */
+.modals-dialog__body {
+  padding: var(--space-5, 1.25rem);
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  color: var(--text-primary-light);
+  font-size: var(--font-size-base, 1rem);
+  line-height: 1.65;
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+  overscroll-behavior: contain;
+}
+
+/* الجسم عندما يحتاج تمرير محدود */
+.modals-dialog__body--scrollable {
+  max-height: 52dvh;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color-light) transparent;
+}
+
+.modals-dialog__body--scrollable::-webkit-scrollbar {
+  width: 5px;
+}
+
+.modals-dialog__body--scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modals-dialog__body--scrollable::-webkit-scrollbar-thumb {
+  background: var(--border-color-light);
+  border-radius: var(--border-radius-full, 9999px);
+}
+
+.modals-dialog__body--scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary-light);
+}
+
+/* ---- 5.7 الرسالة النصية داخل النافذة ---- */
+.modals-dialog__message {
+  margin: 0;
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-sm, 0.9375rem);
+  line-height: 1.6;
+}
+
+/* ---- 5.8 أيقونة النوع (للـ Alert) ---- */
+.modals-dialog__icon-wrap {
+  text-align: center;
+  padding: var(--space-5, 1.25rem) var(--space-5, 1.25rem) 0;
+  flex-shrink: 0;
+}
+
+.modals-dialog__type-icon {
+  font-size: 2.75rem;
+  line-height: 1;
+}
+
+.modals-dialog__type-icon--success { color: var(--success, #4CAF50); }
+.modals-dialog__type-icon--info    { color: var(--info, #2196F3);    }
+.modals-dialog__type-icon--warning { color: var(--warning, #FFC107); }
+.modals-dialog__type-icon--error   { color: var(--error, #F44336);   }
+
+/* ---- 5.9 تذييل النافذة ---- */
+.modals-dialog__footer {
+  padding: var(--space-4, 1rem) var(--space-5, 1.25rem) var(--space-5, 1.25rem);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3, 0.75rem);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-color-light, rgba(0,0,0,0.08));
+  border-radius: 0 0 var(--modals-radius, 16px) var(--modals-radius, 16px);
+  overflow: hidden;
+}
+
+/* ==== 6. أنواع النوافذ الخاصة ==== */
+
+/* ---- 6.1 Confirm ---- */
+.modals-confirm .modals-dialog__footer {
+  justify-content: center;
+}
+
+.modals-confirm--danger .modals-btn--confirm {
+  background: var(--error, #F44336);
+  color: #ffffff;
+}
+
+.modals-confirm--danger .modals-btn--confirm:hover {
+  background: var(--error-light, #E57373);
+}
+
+/* ---- 6.2 Alert ---- */
+.modals-alert .modals-dialog__header {
+  border-bottom-color: transparent;
+  padding-bottom: 0;
+}
+
+.modals-alert .modals-dialog__footer {
+  justify-content: center;
+  border-top-color: transparent;
+  padding-top: 0;
+}
+
+/* ---- 6.3 Prompt ---- */
+.modals-prompt .modals-field {
+  margin-top: var(--space-3, 0.75rem);
+}
+
+.modals-prompt .modals-input {
+  width: 100%;
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border: 1.5px solid var(--border-color-light);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-base, 1rem);
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+  color: var(--text-primary-light);
+  background: var(--surface-light, #ffffff);
+  direction: rtl;
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  appearance: none;
+  box-sizing: border-box;
+}
+
+.modals-prompt .modals-input::placeholder {
+  color: var(--text-tertiary-light);
+}
+
+.modals-prompt .modals-input:focus {
+  border-color: var(--primary, #667eea);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb, 102, 126, 234), 0.15);
+}
+
+.modals-prompt .modals-input[aria-invalid="true"] {
+  border-color: var(--error, #F44336);
+  box-shadow: 0 0 0 3px rgba(var(--error-rgb, 244, 67, 54), 0.12);
+}
+
+.modals-field__error {
+  display: block;
+  margin-top: var(--space-2, 0.5rem);
+  font-size: var(--font-size-xs, 0.8125rem);
+  color: var(--error, #F44336);
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+  min-height: 1.2em; /* لمنع القفزة عند ظهور الخطأ */
+}
+
+/* ---- 6.4 Info ---- */
+.modals-info .modals-dialog__body {
+  padding-bottom: var(--space-3, 0.75rem);
+}
+
+.modals-info .modals-dialog__footer {
+  justify-content: center;
+}
+
+/* ---- 6.5 Custom ---- */
+.modals-custom .modals-dialog__body > p:last-child {
+  margin-bottom: 0;
+}
+
+/* ==== 7. نافذة التحميل (Loading Overlay) ==== */
+.modals-loading {
+  position: fixed;
+  inset: 0;
+  z-index: var(--modals-z-loading, 9800);
+  background: var(--modals-backdrop-bg, rgba(0, 0, 0, 0.55));
+  backdrop-filter: var(--modals-backdrop-blur, blur(4px));
+  -webkit-backdrop-filter: var(--modals-backdrop-blur, blur(4px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+}
+
+.modals-loading--visible {
+  opacity: 1;
+}
+
+.modals-loading--hiding {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modals-loading__card {
+  background: var(--surface-light, #ffffff);
+  border-radius: var(--modals-radius, 16px);
+  padding: var(--space-8, 2rem) var(--space-10, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6, 1.5rem);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.18),
+    0 8px 20px rgba(0, 0, 0, 0.12);
+  direction: rtl;
+  min-width: 180px;
+  max-width: 320px;
+  width: 90%;
+  /* حركة ظهور الكارت */
+  animation: modals-card-appear 0.35s cubic-bezier(0.34, 1.3, 0.64, 1) both;
+}
+
+
+
+/* ---- 7.1 الدوار (Spinner) ---- */
+.modals-loading__spinner {
+  width: 48px;
+  height: 48px;
+  position: relative;
+}
+
+.modals-loading__spinner-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px solid var(--border-color-light, rgba(0,0,0,0.1));
+  border-top-color: var(--primary, #667eea);
+  animation: modals-spin 0.8s linear infinite;
+  will-change: transform;
+}
+
+/* حلقة ثانية للعمق البصري */
+.modals-loading__spinner-ring::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-bottom-color: rgba(var(--primary-rgb, 102, 126, 234), 0.3);
+  animation: modals-spin 1.4s linear infinite reverse;
+}
+
+
+
+/* ---- 7.2 رسالة التحميل ---- */
+.modals-loading__message {
+  margin: 0;
+  font-size: var(--font-size-base, 1rem);
+  color: var(--text-primary-light);
+  font-weight: 500;
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ==== 8. معاينة الصورة (Image Preview) ==== */
+.modals-imgpreview {
+  position: fixed;
+  inset: 0;
+  z-index: var(--modals-z-loading, 9800);
+  background: rgba(0, 0, 0, 0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: zoom-out;
+  will-change: opacity;
+}
+
+.modals-imgpreview--visible {
+  opacity: 1;
+}
+
+.modals-imgpreview--hiding {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- 8.1 زر إغلاق معاينة الصورة ---- */
+.modals-imgpreview__close {
+  position: absolute;
+  top: max(var(--space-5, 1.25rem), env(safe-area-inset-top));
+  inset-inline-end: max(var(--space-5, 1.25rem), env(safe-area-inset-right));
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.125rem;
+  width: var(--modals-min-touch, 44px);
+  height: var(--modals-min-touch, 44px);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, transform 0.18s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modals-imgpreview__close:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
+}
+
+.modals-imgpreview__close:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+/* ---- 8.2 حاوية الصورة ---- */
+.modals-imgpreview__container {
+  max-width: 92vw;
+  max-height: 92dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  position: relative;
+}
+
+.modals-imgpreview__img {
+  max-width: 100%;
+  max-height: 92dvh;
+  object-fit: contain;
+  border-radius: var(--border-radius-sm, 4px);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-drag: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  /* حركة ظهور الصورة */
+  animation: modals-img-appear 0.32s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+}
+
+
+
+/* ---- 8.3 حالات تحميل الصورة ---- */
+.modals-imgpreview__loader {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.8);
+  animation: modals-spin 0.8s linear infinite;
+}
+
+.modals-imgpreview__error {
+  color: var(--error-light, #E57373);
+  font-size: var(--font-size-base, 1rem);
+  text-align: center;
+  padding: var(--space-4, 1rem);
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+}
+
+/* ==== 9. القائمة السفلية (Bottom Sheet) ==== */
+/*
+ * تُعرَض عبر modals-layer للشاشات الكبيرة، وفي قاع الشاشة للصغيرة.
+ * inset-inline يضمن RTL الصحيح.
+ */
+.modals-bottomsheet {
+  position: fixed;
+  bottom: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  z-index: var(--modals-z-modal, 9000);
+  background: var(--surface-light, #ffffff);
+  border-radius: 24px 24px 0 0;
+  padding: var(--space-2, 0.5rem) 0 max(var(--space-4, 1rem), env(safe-area-inset-bottom));
+  max-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  box-shadow:
+    0 -8px 40px rgba(0, 0, 0, 0.18),
+    0 -2px 8px rgba(0, 0, 0, 0.08);
+  /* الحالة الأولية */
+  transform: translateY(100%);
+  transition: transform 0.38s cubic-bezier(0.34, 1.2, 0.64, 1);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.modals-bottomsheet--visible {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.modals-bottomsheet--hiding {
+  transform: translateY(100%);
+  transition: transform 0.26s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ---- 9.1 مقبض السحب ---- */
+.modals-bottomsheet__handle {
+  width: 44px;
+  height: 5px;
+  background: var(--border-color-light, rgba(0,0,0,0.15));
+  border-radius: var(--border-radius-full, 9999px);
+  margin: var(--space-2, 0.5rem) auto var(--space-3, 0.75rem);
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+  transition: background 0.15s;
+}
+
+.modals-bottomsheet__handle:hover {
+  background: var(--text-tertiary-light);
+}
+
+/* ---- 9.2 عنوان القائمة السفلية ---- */
+.modals-bottomsheet__title {
+  font-size: var(--font-size-sm, 0.9375rem);
+  font-weight: 600;
+  color: var(--text-secondary-light);
+  text-align: center;
+  margin: 0 0 var(--space-2, 0.5rem);
+  padding: 0 var(--space-4, 1rem);
+  flex-shrink: 0;
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+  letter-spacing: 0.01em;
+}
+
+/* ---- 9.3 قائمة العناصر ---- */
+.modals-bottomsheet__list {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  overscroll-behavior: contain;
+}
+
+/* ---- 9.4 عنصر في القائمة ---- */
+.modals-bottomsheet__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 0.875rem);
+  width: 100%;
+  padding: 0.875rem var(--space-5, 1.25rem);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: right;
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+  transition: background 0.14s;
+  min-height: var(--modals-min-touch, 44px);
+  color: inherit;
+}
+
+.modals-bottomsheet__item:hover,
+.modals-bottomsheet__item:focus-visible {
+  background: var(--hover-light, rgba(102, 126, 234, 0.08));
+  outline: none;
+}
+
+.modals-bottomsheet__item:focus-visible {
+  outline: 2px solid var(--primary, #667eea);
+  outline-offset: -2px;
+}
+
+/* ---- 9.5 أيقونة العنصر ---- */
+.modals-bottomsheet__item-icon {
+  font-size: 1.25rem;
+  color: var(--primary, #667eea);
+  width: 1.75rem;
+  text-align: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* ---- 9.6 نص العنصر ---- */
+.modals-bottomsheet__item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+}
+
+.modals-bottomsheet__item-label {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: 500;
+  color: var(--text-primary-light);
+  line-height: 1.3;
+}
+
+.modals-bottomsheet__item-desc {
+  font-size: var(--font-size-xs, 0.8125rem);
+  color: var(--text-secondary-light);
+  line-height: 1.3;
+}
+
+/* ---- 9.7 زر الإلغاء ---- */
+.modals-bottomsheet__cancel {
+  margin: var(--space-3, 0.75rem) var(--space-4, 1rem) 0;
+  padding: 0.875rem;
+  background: var(--surface-hover-light, rgba(102, 126, 234, 0.05));
+  border: 1.5px solid var(--border-color-light, rgba(0,0,0,0.08));
+  border-radius: var(--border-radius-lg, 16px);
+  font-size: var(--font-size-base, 1rem);
+  font-weight: 600;
+  color: var(--error, #F44336);
+  cursor: pointer;
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+  min-height: var(--modals-min-touch, 44px);
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.modals-bottomsheet__cancel:hover {
+  background: rgba(var(--error-rgb, 244, 67, 54), 0.08);
+  border-color: rgba(var(--error-rgb, 244, 67, 54), 0.25);
+}
+
+.modals-bottomsheet__cancel:focus-visible {
+  outline: 2px solid var(--error, #F44336);
+  outline-offset: 2px;
+}
+
+/* ==== 10. أزرار النوافذ الموحدة ==== */
+.modals-btn {
+  min-height: var(--modals-min-touch, 44px);
+  min-width: 90px;
+  padding: var(--space-2, 0.5rem) var(--space-5, 1.25rem);
+  border: none;
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-sm, 0.9375rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    opacity 0.15s,
+    transform 0.12s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 0.5rem);
+  font-family: var(--font-family-arabic, 'Cairo', sans-serif);
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
+}
+
+.modals-btn:active {
+  transform: scale(0.96);
+}
+
+.modals-btn:focus-visible {
+  outline: 2px solid var(--primary, #667eea);
+  outline-offset: 2px;
+}
+
+/* ---- 10.1 أنواع الأزرار ---- */
+.modals-btn--primary {
+  background: linear-gradient(
+    135deg,
+    var(--primary, #667eea),
+    var(--secondary, #764ba2)
+  );
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb, 102, 126, 234), 0.35);
+}
+
+.modals-btn--primary:hover {
+  opacity: 0.92;
+  box-shadow: 0 4px 14px rgba(var(--primary-rgb, 102, 126, 234), 0.45);
+}
+
+.modals-btn--secondary {
+  background: var(--surface-hover-light, rgba(102, 126, 234, 0.05));
+  color: var(--text-primary-light);
+  border: 1.5px solid var(--border-color-light, rgba(0,0,0,0.1));
+}
+
+.modals-btn--secondary:hover {
+  background: var(--hover-light, rgba(102, 126, 234, 0.1));
+  border-color: rgba(var(--primary-rgb, 102, 126, 234), 0.2);
+}
+
+.modals-btn--danger {
+  background: var(--error, #F44336);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(var(--error-rgb, 244, 67, 54), 0.3);
+}
+
+.modals-btn--danger:hover {
+  background: var(--error-light, #E57373);
+}
+
+.modals-btn--warning {
+  background: var(--warning, #FFC107);
+  color: #1a1a1a;
+  box-shadow: 0 2px 8px rgba(var(--warning-rgb, 255, 193, 7), 0.3);
+}
+
+.modals-btn--warning:hover {
+  opacity: 0.9;
+}
+
+.modals-btn--success {
+  background: var(--success, #4CAF50);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(var(--success-rgb, 76, 175, 80), 0.3);
+}
+
+.modals-btn--success:hover {
+  opacity: 0.9;
+}
+
+/* ==== 11. الوضع الليلي (Dark Mode) ==== */
+/*
+ * يعتمد على إعادة تعريف tokens في variables.css [data-theme="dark"].
+ * هنا فقط القيم التي لا تنعكس تلقائيًا من المتغيرات.
+ */
+[data-theme="dark"] .modals-toast,
+[data-theme="dark"] .modals-dialog,
+[data-theme="dark"] .modals-loading__card,
+[data-theme="dark"] .modals-bottomsheet {
+  background: var(--surface-light, #1e1e1e);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .modals-dialog__header,
+[data-theme="dark"] .modals-dialog__footer {
+  border-color: var(--border-color-light, rgba(255,255,255,0.1));
+}
+
+[data-theme="dark"] .modals-prompt .modals-input {
+  background: var(--background-light, #121212);
+  border-color: var(--border-color-light, rgba(255,255,255,0.15));
+  color: var(--text-primary-light, #ffffff);
+}
+
+[data-theme="dark"] .modals-prompt .modals-input:focus {
+  border-color: var(--primary, #667eea);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb, 102, 126, 234), 0.2);
+}
+
+[data-theme="dark"] .modals-bottomsheet__handle {
+  background: var(--border-color-light, rgba(255,255,255,0.15));
+}
+
+[data-theme="dark"] .modals-bottomsheet__cancel {
+  background: rgba(var(--error-rgb, 244, 67, 54), 0.12);
+  border-color: rgba(var(--error-rgb, 244, 67, 54), 0.2);
+}
+
+[data-theme="dark"] .modals-bottomsheet__cancel:hover {
+  background: rgba(var(--error-rgb, 244, 67, 54), 0.22);
+}
+
+[data-theme="dark"] .modals-btn--secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-color-light, rgba(255,255,255,0.1));
+  color: var(--text-primary-light, #ffffff);
+}
+
+[data-theme="dark"] .modals-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .modals-loading__spinner-ring {
+  border-color: rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary, #667eea);
+}
+
+[data-theme="dark"] .modals-dialog__body--scrollable::-webkit-scrollbar-thumb {
+  background: var(--border-color-light, rgba(255,255,255,0.15));
+}
+
+/* ==== 12. الأجهزة اللمسية (Touch Devices) ==== */
+@media (hover: none) and (pointer: coarse) {
+  .modals-btn,
+  .modals-imgpreview__close {
+    min-width: 52px;
+    min-height: 52px;
+  }
+
+  .modals-toast__close,
+  .modals-dialog__close-x,
+  .modals-bottomsheet__item,
+  .modals-bottomsheet__cancel {
+    min-height: 52px;
+  }
+
+  .modals-dialog {
+    max-height: 92dvh;
+  }
+
+  /* إزالة hover effects على touch */
+  .modals-btn:hover,
+  .modals-bottomsheet__item:hover {
+    background: initial;
+  }
+  .modals-btn--primary:hover { background: linear-gradient(135deg, var(--primary, #667eea), var(--secondary, #764ba2)); }
+  .modals-btn--danger:hover   { background: var(--error, #F44336); }
+  .modals-btn--success:hover  { background: var(--success, #4CAF50); }
+}
+
+/* ==== 13. الشاشات الصغيرة جدًا ==== */
+@media (max-width: 480px) {
+  .modals-dialog__header {
+    padding: var(--space-4, 1rem) var(--space-4, 1rem) var(--space-3, 0.75rem);
+  }
+
+  .modals-dialog__body {
+    padding: var(--space-4, 1rem);
+  }
+
+  .modals-dialog__footer {
+    padding: var(--space-3, 0.75rem) var(--space-4, 1rem) var(--space-4, 1rem);
+    gap: var(--space-2, 0.5rem);
+  }
+
+  /* الأزرار تأخذ عرضًا كاملاً على الجوال الصغير */
+  .modals-dialog__footer {
+    flex-direction: column-reverse;
+  }
+
+  .modals-btn {
+    width: 100%;
+  }
+
+  .modals-dialog__icon-wrap {
+    padding-top: var(--space-4, 1rem);
+    padding-bottom: var(--space-2, 0.5rem);
+  }
+
+  .modals-dialog__type-icon {
+    font-size: 2.25rem;
+  }
+
+  .modals-loading__card {
+    padding: var(--space-6, 1.5rem) var(--space-8, 2rem);
+    min-width: auto;
+    width: 88%;
+    max-width: 300px;
+  }
+
+  .modals-bottomsheet {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .modals-bottomsheet__item {
+    padding: 0.875rem var(--space-4, 1rem);
+  }
+
+  .modals-imgpreview__close {
+    top: max(var(--space-3, 0.75rem), env(safe-area-inset-top));
+    inset-inline-end: max(var(--space-3, 0.75rem), env(safe-area-inset-right));
+  }
+}
+
+/* ==== 14. الشاشات الكبيرة ==== */
+@media (min-width: 1024px) {
+  .modals-dialog--lg {
+    max-width: 720px;
+  }
+
+  .modals-dialog--fullscreen {
+    max-width: min(95vw, 1100px);
+  }
+}
+
+/* ==== 15. دعم المساحة الآمنة (Safe Area) — iOS Notch ==== */
+@supports (padding: max(0px)) {
+  .modals-bottomsheet {
+    padding-bottom: max(var(--space-4, 1rem), env(safe-area-inset-bottom));
+  }
+
+  #modals-toast-container {
+    top: max(
+      calc(var(--navbar-height, 64px) + var(--space-3, 12px)),
+      env(safe-area-inset-top)
+    );
+    inset-inline-end: max(var(--space-4, 1rem), env(safe-area-inset-right));
+  }
+
+  @media (max-width: 767.98px) {
+    #modals-toast-container {
+      inset-inline-end: max(var(--space-3, 0.75rem), env(safe-area-inset-right));
+      inset-inline-start: max(var(--space-3, 0.75rem), env(safe-area-inset-left));
+    }
+  }
+}
+
+/* ==== 16. تقليل الحركة (Reduced Motion) ==== */
+@media (prefers-reduced-motion: reduce) {
+  .modals-backdrop,
+  .modals-dialog,
+  .modals-toast,
+  .modals-loading,
+  .modals-imgpreview,
+  .modals-bottomsheet,
+  .modals-loading__card {
+    transition: opacity 0.01ms !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .modals-loading__spinner-ring,
+  .modals-loading__spinner-ring::after {
+    animation-duration: 1.5s !important;
+  }
+
+  .modals-toast__progress {
+    animation: none !important;
+  }
+}

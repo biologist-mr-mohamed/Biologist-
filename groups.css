@@ -1,0 +1,540 @@
+/* =======================
+   views/groups/groups.css
+   تصميم نظام المجموعات
+   ======================= */
+
+/* ----- صفحة قائمة المجموعات ----- */
+.groups-page {
+  padding-bottom: var(--spacing-xl);
+}
+
+.groups-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
+}
+
+.page-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.title-icon {
+  color: var(--primary);
+  font-size: 1.8rem;
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: var(--spacing-xs);
+}
+
+.create-group-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* شبكة المجموعات */
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+/* بطاقة المجموعة */
+.group-card {
+  background: var(--surface);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+}
+
+.group-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.group-card-header {
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  color: white;
+}
+
+.group-card-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.group-owner-badge {
+  font-size: 0.75rem;
+  background: rgba(255,255,255,0.2);
+  padding: 2px 8px;
+  border-radius: var(--border-radius-full);
+}
+
+.group-card-body {
+  padding: var(--spacing-md);
+}
+
+.group-description {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: var(--spacing-md);
+  line-height: 1.4;
+}
+
+.group-stats {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.group-stats i {
+  margin-left: 4px;
+}
+
+.group-card-footer {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.group-card-footer .btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+/* حالة عدم وجود مجموعات */
+.groups-empty {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background: var(--surface);
+  border-radius: var(--border-radius-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+/* مودال إنشاء مجموعة */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--surface);
+  border-radius: var(--border-radius-lg);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.modal-body {
+  padding: var(--spacing-md);
+}
+
+.modal-footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
+
+/* قائمة الاقتراحات */
+.suggestions-list {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+  display: none;
+}
+
+.suggestions-list.active {
+  display: block;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.suggestion-item:hover {
+  background: var(--hover);
+}
+
+.suggestion-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* الأعضاء المختارين */
+.selected-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: var(--spacing-sm);
+}
+
+.member-tag {
+  background: var(--primary-light);
+  color: white;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-full);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.remove-member {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+/* =======================
+   صفحة عرض المجموعة
+   ======================= */
+.group-view-page {
+  padding-bottom: var(--spacing-xl);
+}
+
+.group-header {
+  background: var(--surface);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.group-info h2 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 1.6rem;
+}
+
+.group-description {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.group-meta {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.group-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+/* التبويبات */
+.group-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-lg);
+}
+
+.group-tabs .tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.group-tabs .tab-btn.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.group-tabs .tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary);
+}
+
+/* تبويب المحادثة */
+.chat-container {
+  background: var(--surface);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.message-item {
+  display: flex;
+  gap: var(--spacing-sm);
+  max-width: 80%;
+}
+
+.message-own {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.message-bubble {
+  background: var(--background);
+  padding: 8px 12px;
+  border-radius: var(--border-radius-md);
+  max-width: 100%;
+}
+
+.message-own .message-bubble {
+  background: var(--primary);
+  color: white;
+}
+
+.message-sender {
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.message-text {
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.message-time {
+  font-size: 0.65rem;
+  margin-top: 4px;
+  display: block;
+  opacity: 0.7;
+}
+
+.chat-input-container {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  background: var(--surface);
+}
+
+.chat-input {
+  flex: 1;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 10px;
+  resize: none;
+  font-family: inherit;
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+.send-btn {
+  align-self: flex-end;
+}
+
+/* تبويب الدروس والامتحانات */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.lessons-grid, .exams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* بطاقة المحتوى المخصص */
+.custom-card {
+  background: var(--surface);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+  border: 1px solid var(--border-color);
+}
+
+.custom-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.custom-card h4 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 1rem;
+}
+
+.custom-card p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.custom-card .btn-sm {
+  padding: 4px 12px;
+  font-size: 0.75rem;
+}
+
+/* تبويب الأعضاء */
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: var(--surface);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.member-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.verification-badge-sm {
+  color: var(--primary);
+  font-size: 0.8rem;
+}
+
+.member-role {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.member-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* استجابة للشاشات الصغيرة */
+@media (max-width: 768px) {
+  .groups-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .group-tabs .tab-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .chat-container {
+    height: 400px;
+  }
+  
+  .message-item {
+    max-width: 90%;
+  }
+}

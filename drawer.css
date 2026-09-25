@@ -1,0 +1,1557 @@
+/* 
+ * drawer.css — نظام القائمة الجانبية المتكامل
+ * الإصدار: v5.0.0
+ * ============================================================================
+ * المسؤولية: تصميم القائمة الجانبية (Side Drawer) بجميع مكوناتها
+ * الميزات:
+ *   - خروج من الجهة اليسرى (RTL-First)
+ *   - تأثير Glassmorphism مع backdrop-filter
+ *   - دعم الوضع الليلي والثيمات الخمسة
+ *   - رسوم متحركة سلسة وتأثيرات hover احترافية
+ *   - نظام أفاتار موحد مع avatar.js (avatar-wrapper/frame/image/sprite-layer)
+ *   - حاوية sidebar-avatar-container كنقطة تكامل وحيدة
+ * ============================================================================
+ * التكامل:
+ *   - جميع المتغيرات مستوردة من variables.css (تم نقل :root بالكامل)
+ *   - يستخدم متغيرات أبعاد جديدة من variables.css: 
+ *     --drawer-avatar-size, --drawer-avatar-wrapper-size, --drawer-avatar-wrapper-border,
+ *     --drawer-verification-size, --drawer-verification-font, --drawer-verification-border
+ *   - يعتمد على كلاسات avatar.js: avatar-wrapper--lg, avatar-frame--*, avatar-image,
+ *     avatar-sprite-layer, avatar-shimmer, avatar-pulse-ring, verification-badge
+ *   - الكلاسات القديمة (.sidebar-avatar-frame / .sidebar-avatar-sprite) محتفظ بها
+ *     فقط كـ fallback للتوافق مع أي HTML موجود قبل التحديث
+ *   - جميع قيم الألوان مستمدة من variables.css حصراً
+ *   - تستخدم @keyframes loading من animations.css للـ Skeleton
+ * ============================================================================
+ */
+
+/* ===== 1. متغيرات القائمة الجانبية (جميعها من variables.css) ===== */
+/* تم نقل جميع متغيرات :root إلى variables.css */
+/* لم يتبق هنا سوى ضبط قيم بعض المتغيرات حسب الاتجاه (RTL/LTR) */
+
+/* تعديل اتجاه القائمة والظل حسب اتجاه الصفحة */
+[dir="ltr"] {
+  --drawer-direction:   -100%;
+  --drawer-hover-shift: -5px;
+  --drawer-shadow:      -2px 0 30px rgba(0, 0, 0, 0.18);
+}
+
+[dir="rtl"] {
+  --drawer-direction:   -100%;
+  --drawer-hover-shift: -5px;
+  --drawer-shadow:       2px 0 30px rgba(0, 0, 0, 0.18);
+}
+
+/* ===== 2. الخلفية المعتمة ===== */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--overlay-color);
+  backdrop-filter: blur(var(--overlay-blur));
+  -webkit-backdrop-filter: blur(var(--overlay-blur));
+  z-index: 1099;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--drawer-transition), visibility var(--drawer-transition);
+  cursor: pointer;
+  will-change: opacity;
+}
+
+.sidebar-overlay.overlay-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ===== 3. هيكل القائمة الجانبية ===== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--drawer-width);
+  max-width: 90vw;
+  background-color: var(--surface-light);
+  box-shadow: var(--drawer-shadow);
+  z-index: 1100;
+  transform: translateX(var(--drawer-direction));
+  transition: transform var(--drawer-transition);
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-right: none;
+  border-left: 1px solid var(--border-color-light);
+  contain: layout paint;
+  will-change: transform;
+  scroll-behavior: smooth;
+}
+
+[data-theme="light"] .sidebar {
+  background: var(--glass-bg-light);
+  backdrop-filter: var(--drawer-blur);
+  -webkit-backdrop-filter: var(--drawer-blur);
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .sidebar {
+  background: var(--glass-bg-dark);
+  backdrop-filter: var(--drawer-blur);
+  -webkit-backdrop-filter: var(--drawer-blur);
+  border-left-color: rgba(255, 255, 255, 0.06);
+  box-shadow: -2px 0 30px rgba(0, 0, 0, 0.65);
+}
+
+.sidebar.drawer-open {
+  transform: translateX(0);
+}
+
+.sidebar.edge-peek {
+  transform: translateX(calc(var(--drawer-direction) + 5px));
+}
+
+/* ===== 4. رأس القائمة ===== */
+.sidebar-header {
+  padding: var(--space-2) var(--space-1) var(--space-1);
+  border-bottom: 1px solid var(--border-color-light);
+  position: relative;
+  flex-shrink: 0;
+  background: linear-gradient(135deg,
+    rgba(102, 126, 234, 0.06),
+    rgba(118, 75, 162, 0.03));
+}
+
+.close-sidebar {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-full);
+  background-color: var(--surface-light);
+  color: var(--text-secondary-light);
+  border: 1px solid var(--border-color-light);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.close-sidebar:hover,
+.close-sidebar:focus-visible {
+  background-color: var(--hover-light);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: rotate(90deg);
+}
+
+.close-sidebar:active {
+  transform: rotate(90deg) scale(0.92);
+}
+
+/* ===== 5. منطقة المستخدم ===== */
+.sidebar-user {
+  text-align: center;
+  margin-bottom: var(--space-3);
+  padding: 0 var(--space-2);
+}
+
+/* ==== حاوية الأفاتار الخارجية في القائمة ==== */
+.user-avatar-large {
+  width: var(--drawer-avatar-size);
+  height: var(--drawer-avatar-size);
+  margin: var(--space-2) auto var(--space-4);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* هالة ضوئية خلف الأفاتار */
+  filter: drop-shadow(0 8px 24px rgba(var(--primary-rgb, 102, 126, 234), 0.22));
+}
+
+.user-avatar-large:hover {
+  transform: scale(1.06) translateY(-3px);
+  filter: drop-shadow(0 14px 32px rgba(var(--primary-rgb, 102, 126, 234), 0.35));
+}
+
+/* ==== حاوية أفاتار مرنة تستقبل عناصر avatar.js ==== */
+.sidebar-avatar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== 6. تكامل avatar.js داخل القائمة الجانبية (lg) ===== */
+/*
+ * avatar.js ينشئ دائماً:
+ *   .avatar-wrapper.avatar-wrapper--lg
+ *     ├── .avatar-pulse-ring (اختياري)
+ *     ├── .avatar-frame.avatar-frame--{type}
+ *     │       └── .avatar-image
+ *     │               ├── .avatar-sprite-layer
+ *     │               └── .avatar-shimmer (اختياري)
+ *     └── .verification-badge.badge--{type}
+ *
+ * هذا القسم يُخصِّص السلوك البصري لهذه الكلاسات
+ * داخل سياق القائمة الجانبية دون إعادة تعريفها.
+ */
+
+/* ==== تمركز avatar-wrapper داخل الحاوية ==== */
+.sidebar-avatar-container .avatar-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==== تكبير الأفاتار لحجم lg داخل الـ Drawer ==== */
+.sidebar-avatar-container .avatar-wrapper--lg {
+  --aw-size:   var(--drawer-avatar-wrapper-size);
+  --aw-border: var(--drawer-avatar-wrapper-border);
+}
+
+/* ==== تأثير hover للحاوية الكاملة ==== */
+.sidebar-avatar-container .avatar-wrapper:hover .avatar-frame {
+  transform: scale(1.05);
+  transition: transform 0.36s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.36s ease;
+}
+
+/* ==== صورة الأفاتار الداخلية ==== */
+.sidebar-avatar-container .avatar-image {
+  background-color: var(--background-light);
+  /* تفاصيل صورة أوضح بحجم أكبر */
+  image-rendering: high-quality;
+}
+
+/* ==== طبقة الـ Sprite داخل القائمة ==== */
+.sidebar-avatar-container .avatar-sprite-layer {
+  will-change: background-position;
+  image-rendering: high-quality;
+}
+
+/* ==== تأثير Shimmer داخل القائمة ==== */
+.sidebar-avatar-container .avatar-shimmer {
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ==== حلقة النبض المزدوجة حول الأفاتار ==== */
+.sidebar-avatar-container .avatar-pulse-ring {
+  inset: -10px;
+  border: 2.5px solid rgba(var(--primary-rgb, 102, 126, 234), 0.28);
+  animation: drawerPulseRing 2.8s ease-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* حلقة النبض الثانية (pseudo) */
+.sidebar-avatar-container .avatar-pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(var(--primary-rgb, 102, 126, 234), 0.14);
+  animation: drawerPulseRing 2.8s ease-out 0.9s infinite;
+  pointer-events: none;
+}
+
+
+
+/* ===== 7. شارة التوثيق داخل القائمة ===== */
+/*
+ * verification-badge تُنشأ بواسطة avatar.js مباشرةً
+ * داخل .avatar-wrapper — هذا القسم يُضبط موضعها وحجمها
+ * في سياق الأفاتار الكبير (lg) للقائمة الجانبية.
+ */
+
+.sidebar-avatar-container .verification-badge {
+  position: absolute;
+  bottom: 4px;
+  inset-inline-end: 4px;
+  transform: translate(10%, 10%);
+  width: var(--drawer-verification-size);
+  height: var(--drawer-verification-size);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--drawer-verification-font);
+  border: var(--drawer-verification-border) solid var(--surface-light);
+  z-index: 6;
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.28),
+    0 1px 4px  rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  transition:
+    transform 0.30s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.30s ease;
+  /* تأثير دخول لطيف */
+  animation: badgeEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+
+
+.sidebar-avatar-container .avatar-wrapper:hover .verification-badge {
+  transform: translate(10%, 10%) scale(1.20);
+  box-shadow:
+    0 5px 16px rgba(0, 0, 0, 0.32),
+    0 2px 6px  rgba(0, 0, 0, 0.20);
+}
+
+.sidebar-avatar-container .verification-badge.badge--teacher {
+  background: linear-gradient(135deg,
+    var(--frame-teacher-start, #667eea),
+    var(--frame-teacher-end,   #764ba2));
+  color: white;
+}
+
+.sidebar-avatar-container .verification-badge.badge--moderator {
+  background: linear-gradient(135deg,
+    var(--frame-mod-start, #11998e),
+    var(--frame-mod-end,   #38ef7d));
+  color: white;
+}
+
+.sidebar-avatar-container .verification-badge:not(.badge--teacher):not(.badge--moderator) {
+  background: var(--primary);
+  color: white;
+}
+
+/* ===== 8. إطارات الأفاتار — تخصيص سياق القائمة ===== */
+/*
+ * الكلاسات avatar-frame--* مُعرَّفة عالمياً في components.css
+ * هذا القسم يُضيف تأثيرات إضافية خاصة بسياق الـ Drawer فقط
+ * (animations متوهجة — أطول وأبطأ لأن المساحة أكبر وأبرز)
+ */
+
+.sidebar-avatar-container .avatar-frame--teacher {
+  animation: drawerFrameTeacher 2.6s ease-in-out infinite;
+  /* ظل ملون بارز إضافي */
+  filter: drop-shadow(0 6px 16px rgba(102, 126, 234, 0.30));
+}
+
+.sidebar-avatar-container .avatar-frame--moderator {
+  animation: drawerFrameModerator 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 6px 16px rgba(17, 153, 142, 0.28));
+}
+
+.sidebar-avatar-container .avatar-frame--gold {
+  animation: drawerFrameGold 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 6px 18px rgba(255, 160, 0, 0.36));
+}
+
+.sidebar-avatar-container .avatar-frame--silver {
+  animation: drawerFrameSilver 3.4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(128, 128, 128, 0.22));
+}
+
+.sidebar-avatar-container .avatar-frame--bronze {
+  /* هادئ بصرياً — ظل خفيف فقط */
+  filter: drop-shadow(0 4px 10px rgba(205, 127, 50, 0.18));
+  transition: filter 0.35s ease;
+}
+
+.sidebar-avatar-container .avatar-frame--bronze:hover {
+  filter: drop-shadow(0 6px 16px rgba(205, 127, 50, 0.30));
+}
+
+
+
+
+
+
+
+
+
+/* ===== 9. fallback النظام القديم (للتوافق مع HTML غير المُحدَّث) ===== */
+/*
+ * هذه الكلاسات احتياطية فقط — تُستخدم إن لم يكن avatar.js مُفعَّلاً
+ * أو في حالة HTML قديم لم يُحدَّث بعد.
+ * لا تُستخدم إن كان avatar.js يعمل بشكل طبيعي.
+ */
+
+.sidebar-avatar-frame {
+  width: calc(var(--drawer-avatar-size) + 8px);
+  height: calc(var(--drawer-avatar-size) + 8px);
+  border-radius: 50%;
+  padding: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--frame-bronze-start), var(--frame-bronze-end));
+  box-shadow:
+    0 0 0 2px rgba(205, 127, 50, 0.28),
+    0 6px 18px rgba(0,0,0,0.18);
+  transition:
+    box-shadow var(--transition-normal),
+    background var(--transition-normal),
+    transform 0.36s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.sidebar-avatar-frame:hover {
+  transform: scale(1.05);
+}
+
+.sidebar-avatar-frame.avatar-frame--bronze {
+  background: linear-gradient(135deg, var(--frame-bronze-start), var(--frame-bronze-end));
+  box-shadow:
+    0 0 0 2.5px rgba(205, 127, 50, 0.35),
+    0 6px 18px  rgba(205, 127, 50, 0.28);
+}
+
+.sidebar-avatar-frame.avatar-frame--silver {
+  background: linear-gradient(135deg, var(--frame-silver-start), var(--frame-silver-end));
+  box-shadow:
+    0 0 0 2.5px rgba(192, 192, 192, 0.48),
+    0 6px 18px  rgba(192, 192, 192, 0.36),
+    0 0 28px    rgba(192, 192, 192, 0.14);
+}
+
+.sidebar-avatar-frame.avatar-frame--gold {
+  background: linear-gradient(135deg, var(--frame-gold-start), var(--frame-gold-end));
+  box-shadow:
+    0 0 0 2.5px rgba(255, 215, 0, 0.60),
+    0 6px 22px  rgba(255, 160, 0, 0.48),
+    0 0 40px    rgba(255, 215, 0, 0.24);
+  animation: drawerFrameGold 2.2s ease-in-out infinite;
+}
+
+.sidebar-avatar-frame.avatar-frame--teacher {
+  background: linear-gradient(135deg, var(--frame-teacher-start), var(--frame-teacher-end));
+  box-shadow:
+    0 0 0 2.5px rgba(102, 126, 234, 0.55),
+    0 6px 22px  rgba(102, 126, 234, 0.42),
+    0 0 40px    rgba(118, 75, 162, 0.22);
+  animation: drawerFrameTeacher 2.6s ease-in-out infinite;
+}
+
+.sidebar-avatar-frame.avatar-frame--moderator {
+  background: linear-gradient(135deg, var(--frame-mod-start), var(--frame-mod-end));
+  box-shadow:
+    0 0 0 2.5px rgba(17, 153, 142, 0.50),
+    0 6px 22px  rgba(56, 239, 125, 0.36),
+    0 0 40px    rgba(17, 153, 142, 0.16);
+  animation: drawerFrameModerator 2.6s ease-in-out infinite;
+}
+
+/* ==== sprite القديمة ==== */
+.sidebar-avatar-sprite {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  position: relative;
+  display: block;
+  z-index: 1;
+}
+
+.sidebar-avatar-sprite.avatar-sprite-mode {
+  background-size: auto;
+}
+
+/* ===== 10. معلومات المستخدم النصية ===== */
+.user-info {
+  text-align: center;
+}
+
+.user-name {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  background-color: var(--background-light);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--border-radius-full);
+  display: inline-block;
+  margin-bottom: var(--space-2);
+}
+
+/* ===== 11. Streak ===== */
+.user-streak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--warning);
+  background-color: rgba(255, 193, 7, 0.10);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--border-radius-full);
+  width: fit-content;
+  margin: 0 auto;
+  border: 1px solid rgba(255, 193, 7, 0.20);
+  transition: all var(--transition-fast);
+}
+
+.user-streak.streak--medium {
+  color: #ff8c00;
+  background-color: rgba(255, 140, 0, 0.12);
+  border-color: rgba(255, 140, 0, 0.25);
+}
+
+.user-streak.streak--high {
+  color: #e25822;
+  background-color: rgba(226, 88, 34, 0.12);
+  border-color: rgba(226, 88, 34, 0.30);
+  animation: streakGlow 1.8s ease-in-out infinite;
+}
+
+.user-streak.streak--legend {
+  color: #ff2244;
+  background: linear-gradient(135deg, rgba(255,34,68,0.15), rgba(255,140,0,0.10));
+  border-color: rgba(255, 34, 68, 0.35);
+  animation: streakGlow 1.2s ease-in-out infinite;
+  font-weight: 700;
+}
+
+
+
+.user-streak i { font-size: var(--font-size-base); }
+
+/* ===== 12. الإحصائيات السريعة ===== */
+.user-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: var(--space-3) 0;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color-light);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary-light);
+}
+
+.stat-item i {
+  font-size: var(--font-size-base);
+  color: var(--primary);
+}
+
+/* ===== 13. شريط التقدم ===== */
+.progress-container {
+  margin: var(--space-3) 0;
+}
+
+.progress-bar-bg {
+  background-color: var(--border-color-light);
+  border-radius: var(--border-radius-full);
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: var(--border-radius-full);
+  transition: width 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
+  animation: drawerProgressShimmer 1.6s infinite;
+}
+
+
+
+.progress-percent {
+  display: block;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary-light);
+  margin-top: var(--space-1);
+}
+
+/* ===== 14. آخر نشاط ===== */
+.last-activity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary-light);
+  margin: var(--space-2) 0;
+  padding: var(--space-1) var(--space-2);
+  background-color: var(--background-light);
+  border-radius: var(--border-radius-md);
+}
+
+.last-activity i {
+  font-size: var(--font-size-sm);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* ===== 15. التحية الذكية ===== */
+.greeting {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: center;
+  margin: var(--space-3) 0;
+  padding: var(--space-2);
+  background: linear-gradient(135deg,
+    rgba(102, 126, 234, 0.08),
+    rgba(118, 75, 162, 0.04));
+  border-radius: var(--border-radius-lg);
+  color: var(--primary-dark);
+  border: 1px solid rgba(102, 126, 234, 0.12);
+}
+
+/* ===== 16. معاينة الإشعارات ===== */
+.notif-preview {
+  margin: var(--space-3) 0;
+  padding: var(--space-2);
+  background-color: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color-light);
+}
+
+.notif-preview-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  color: var(--text-primary-light);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.notif-preview-title i { color: var(--primary); }
+
+.notif-item {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border-color-light);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border-radius: var(--border-radius-sm);
+}
+
+.notif-item:last-child { border-bottom: none; }
+
+.notif-item:hover { background-color: var(--hover-light); }
+
+.notif-item p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.notif-item small {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary-light);
+}
+
+/* ===== 17. الدروس المحفوظة ===== */
+.favorites-container {
+  margin: var(--space-3) 0;
+  padding: var(--space-2);
+  background-color: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color-light);
+}
+
+.favorites-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.fav-item {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border-color-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  text-align: right;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  color: var(--text-primary-light);
+  font-size: var(--font-size-sm);
+  border-radius: var(--border-radius-sm);
+}
+
+.fav-item:last-child { border-bottom: none; }
+
+.fav-item:hover {
+  background-color: var(--hover-light);
+  color: var(--primary);
+  transform: translateX(var(--drawer-hover-shift));
+}
+
+.fav-item i {
+  color: var(--warning);
+  font-size: var(--font-size-sm);
+}
+
+.fav-empty {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  padding: var(--space-2) 0;
+}
+
+/* ===== 18. لوحة المتصدرين ===== */
+.leaderboard-container {
+  margin: var(--space-3) 0;
+  padding: var(--space-2);
+  background-color: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color-light);
+}
+
+.leaderboard-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.leaderboard-item {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border-color-light);
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.leaderboard-item:last-child { border-bottom: none; }
+
+.leaderboard-item i { color: var(--xp-start); }
+
+/* ===== 19. الإجراءات السريعة ===== */
+.quick-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.quick-action-btn {
+  flex: 1;
+  padding: var(--space-2);
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-primary-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  flex-direction: column;
+}
+
+.quick-action-btn i { font-size: var(--font-size-base); color: var(--primary); }
+
+.quick-action-btn:hover {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.30);
+}
+
+.quick-action-btn:hover i { color: white; }
+
+/* ===== 20. بانر ديناميكي (الدور) ===== */
+.role-banner {
+  margin: var(--space-3) 0;
+  padding: var(--space-2) var(--space-3);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--border-radius-lg);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.30);
+  letter-spacing: 0.02em;
+}
+
+/* ===== 21. مؤشر الثيم ===== */
+.theme-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin: var(--space-2) auto;
+  border: 3px solid var(--border-color-light);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  cursor: pointer;
+  background: var(--primary);
+}
+
+.theme-indicator:hover {
+  transform: scale(1.15);
+  border-color: var(--primary);
+}
+
+/* ===== 22. معلومات المطور ===== */
+.dev-info {
+  margin: var(--space-3) 0;
+  padding: var(--space-2) var(--space-3);
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary-light);
+  border: 1px dashed var(--border-color-light);
+}
+
+.dev-info-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 3px 0;
+  direction: ltr;
+  justify-content: flex-end;
+}
+
+.dev-info-row i { color: var(--primary); }
+
+/* ===== 23. اختصارات الإعدادات ===== */
+.settings-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+  justify-content: center;
+}
+
+.setting-shortcut {
+  padding: var(--space-1) var(--space-3);
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.setting-shortcut i { font-size: var(--font-size-sm); color: var(--primary); }
+
+.setting-shortcut:hover {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.setting-shortcut:hover i { color: white; }
+
+/* ===== 24. محتوى القائمة القابل للتمرير ===== */
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-2) var(--space-3);
+}
+
+/* ===== 25. قائمة الروابط الأساسية ===== */
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-2) 0;
+}
+
+.sidebar-menu-item {
+  margin-bottom: 2px;
+  opacity: 0;
+  transform: translateX(16px);
+  animation: slideInMenu 0.30s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* ==== تأخير متتابع لعناصر القائمة ==== */
+.sidebar.drawer-open .sidebar-menu-item:nth-child(1)  { animation-delay: 0.03s; }
+.sidebar.drawer-open .sidebar-menu-item:nth-child(2)  { animation-delay: 0.06s; }
+.sidebar.drawer-open .sidebar-menu-item:nth-child(3)  { animation-delay: 0.09s; }
+.sidebar.drawer-open .sidebar-menu-item:nth-child(4)  { animation-delay: 0.12s; }
+.sidebar.drawer-open .sidebar-menu-item:nth-child(5)  { animation-delay: 0.15s; }
+.sidebar.drawer-open .sidebar-menu-item:nth-child(6)  { animation-delay: 0.18s; }
+.sidebar.drawer-open .sidebar-menu-item:nth-child(7)  { animation-delay: 0.21s; }
+.sidebar.drawer-open .sidebar-menu-item:nth-child(8)  { animation-delay: 0.24s; }
+.sidebar.drawer-open .sidebar-menu-item:nth-child(9)  { animation-delay: 0.27s; }
+.sidebar.drawer-open .sidebar-menu-item:nth-child(10) { animation-delay: 0.30s; }
+
+
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--border-radius-md);
+  width: 100%;
+  text-align: right;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary-light);
+  transition: all var(--transition-fast);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ==== تأثير ripple داخلي ==== */
+.sidebar-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--hover-light);
+  opacity: 0;
+  border-radius: inherit;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.sidebar-link:hover::before,
+.sidebar-link:focus-visible::before { opacity: 1; }
+
+.sidebar-link i {
+  width: 22px;
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary-light);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.sidebar-link span {
+  flex: 1;
+  text-align: right;
+}
+
+.sidebar-link:hover,
+.sidebar-link:focus-visible {
+  color: var(--primary);
+  transform: translateX(var(--drawer-hover-shift));
+}
+
+.sidebar-link:hover i,
+.sidebar-link:focus-visible i {
+  color: var(--primary);
+  transform: scale(1.12);
+}
+
+.sidebar-link:active {
+  transform: translateX(var(--drawer-hover-shift)) scale(0.97);
+}
+
+/* ==== الرابط النشط ==== */
+.sidebar-link.active {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.30);
+}
+
+.sidebar-link.active i { color: white; }
+
+/* ==== زر الإضافة ==== */
+.sidebar-link.add-button {
+  background: linear-gradient(135deg,
+    rgba(102, 126, 234, 0.10),
+    rgba(118, 75, 162, 0.06));
+  border: 1px dashed rgba(102, 126, 234, 0.35);
+}
+
+.sidebar-link.add-button:hover {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border-style: solid;
+}
+
+.sidebar-link.add-button:hover i { color: white; }
+
+/* ===== 26. محتوى الضيف ===== */
+.sidebar-guest {
+  text-align: center;
+  padding: var(--space-5) var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sidebar-message {
+  background-color: var(--background-light);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  border: 1px solid var(--border-color-light);
+  width: 100%;
+  text-align: right;
+}
+
+.sidebar-message i {
+  color: var(--primary);
+  margin-left: var(--space-1);
+}
+
+.sidebar-buttons {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ===== 27. محتوى المستخدم المسجل ===== */
+.sidebar-logged {
+  flex: 1;
+  display: none;
+}
+
+.sidebar-logged[aria-hidden="false"] {
+  display: block;
+}
+
+/* ===== 28. الفاصل البصري ===== */
+.sidebar-divider {
+  height: 1px;
+  background: var(--border-color-light);
+  margin: var(--space-2) var(--space-3);
+  border: none;
+  opacity: 0.6;
+}
+
+/* ===== 29. التذييل ===== */
+.sidebar-footer {
+  padding: var(--space-1) var(--space-2);
+  border-top: 1px solid var(--border-color-light);
+  margin-top: auto;
+  background-color: var(--surface-light);
+  flex-shrink: 0;
+}
+
+.sidebar-social {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.social-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--background-light);
+  border: 1px solid var(--border-color-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.social-icon:hover {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(var(--primary-rgb), 0.30);
+}
+
+.sidebar-version {
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary-light);
+  letter-spacing: 0.04em;
+}
+
+/* ===== 30. الوصولية ===== */
+.sidebar:focus { outline: none; }
+
+.sidebar-link:focus-visible,
+.close-sidebar:focus-visible,
+.social-icon:focus-visible,
+.quick-action-btn:focus-visible,
+.setting-shortcut:focus-visible,
+.fav-item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ===== 31. تحسينات التمرير ===== */
+.sidebar::-webkit-scrollbar { width: 5px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--border-color-light);
+  border-radius: var(--border-radius-full);
+}
+.sidebar::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* ===== 32. الوضع الليلي ===== */
+[data-theme="dark"] .sidebar-header {
+  background: linear-gradient(135deg,
+    rgba(100, 181, 246, 0.08),
+    rgba(118, 75, 162, 0.04));
+  border-bottom-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .close-sidebar {
+  background-color: var(--surface-dark);
+  border-color: var(--border-color-dark);
+  color: var(--text-secondary-dark);
+}
+
+[data-theme="dark"] .close-sidebar:hover {
+  background-color: var(--hover-dark);
+}
+
+[data-theme="dark"] .user-stats,
+[data-theme="dark"] .notif-preview,
+[data-theme="dark"] .favorites-container,
+[data-theme="dark"] .leaderboard-container,
+[data-theme="dark"] .sidebar-message,
+[data-theme="dark"] .last-activity {
+  background-color: var(--background-dark);
+  border-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .user-role {
+  background-color: var(--background-dark);
+  color: var(--text-secondary-dark);
+}
+
+[data-theme="dark"] .greeting {
+  background: linear-gradient(135deg,
+    rgba(100, 181, 246, 0.12),
+    rgba(118, 75, 162, 0.06));
+  color: var(--text-primary-dark);
+  border-color: rgba(100, 181, 246, 0.15);
+}
+
+[data-theme="dark"] .user-name        { color: var(--text-primary-dark); }
+[data-theme="dark"] .user-streak      { background-color: rgba(255, 193, 7, 0.08); }
+[data-theme="dark"] .progress-bar-bg  { background-color: var(--border-color-dark); }
+[data-theme="dark"] .sidebar-link     { color: var(--text-primary-dark); }
+
+[data-theme="dark"] .sidebar-link:hover,
+[data-theme="dark"] .sidebar-link:focus-visible {
+  background-color: var(--hover-dark);
+}
+
+[data-theme="dark"] .sidebar-link i   { color: var(--text-secondary-dark); }
+
+[data-theme="dark"] .social-icon {
+  background-color: var(--background-dark);
+  border-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .dev-info {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-color-dark);
+  color: var(--text-tertiary-dark);
+}
+
+[data-theme="dark"] .dev-info-row     { color: var(--text-secondary-dark); }
+
+[data-theme="dark"] .setting-shortcut {
+  background-color: var(--surface-dark);
+  border-color: var(--border-color-dark);
+  color: var(--text-primary-dark);
+}
+
+[data-theme="dark"] .quick-action-btn {
+  background-color: var(--surface-dark);
+  border-color: var(--border-color-dark);
+  color: var(--text-primary-dark);
+}
+
+[data-theme="dark"] .fav-item         { color: var(--text-primary-dark); }
+[data-theme="dark"] .fav-item:hover   { background-color: var(--hover-dark); }
+
+[data-theme="dark"] .sidebar-footer {
+  background-color: var(--surface-dark);
+  border-top-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .sidebar-version  { color: var(--text-tertiary-dark); }
+
+[data-theme="dark"] .sidebar-link.add-button {
+  background: rgba(102, 126, 234, 0.08);
+  border-color: rgba(102, 126, 234, 0.25);
+}
+
+/* ==== شارة التوثيق في الوضع الليلي ==== */
+[data-theme="dark"] .sidebar-avatar-container .verification-badge {
+  border-color: var(--surface-dark);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+}
+
+/* ==== صورة الأفاتار في الوضع الليلي ==== */
+[data-theme="dark"] .sidebar-avatar-container .avatar-image {
+  background-color: var(--surface-dark);
+}
+
+/* ==== fallback في الوضع الليلي ==== */
+[data-theme="dark"] .sidebar-avatar-sprite {
+  background-color: var(--background-dark);
+}
+
+/* ===== 33. تكامل الثيمات الملونة ===== */
+.theme-blue  .sidebar-link:hover i,
+.theme-pink  .sidebar-link:hover i,
+.theme-green .sidebar-link:hover i,
+.theme-purple .sidebar-link:hover i,
+.theme-orange .sidebar-link:hover i {
+  color: var(--primary);
+}
+
+/* ===== 34. Micro-interactions للعناصر ===== */
+.sidebar-item {
+  transition: transform 0.18s ease, background-color 0.18s ease;
+  border-radius: 12px;
+  margin: 2px 8px;
+}
+
+.sidebar-item:hover {
+  transform: scale(1.02);
+  background-color: rgba(var(--primary-rgb, 102, 126, 234), 0.08);
+}
+
+.sidebar-item:active { transform: scale(0.97); }
+
+/* ===== 35. نظام XP و Level ===== */
+.xp-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+}
+
+.level-badge {
+  background: var(--primary);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-full);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.30);
+}
+
+.xp-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: rgba(0,0,0,0.08);
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--xp-start), var(--xp-end));
+  width: 0%;
+  border-radius: var(--border-radius-full);
+  transition: width 0.5s ease;
+}
+
+.xp-text {
+  font-size: 11px;
+  color: var(--text-secondary-light);
+  margin-right: 6px;
+}
+
+/* ===== 36. التحدي اليومي ===== */
+.daily-challenge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(var(--primary-rgb, 102, 126, 234), 0.08);
+  border: 1px solid rgba(var(--primary-rgb, 102, 126, 234), 0.22);
+  border-radius: var(--border-radius-lg);
+  padding: 12px;
+  margin: 10px 0;
+  backdrop-filter: blur(4px);
+}
+
+.challenge-icon    { font-size: 26px; flex-shrink: 0; }
+.challenge-content { flex: 1; }
+.challenge-title   { font-weight: 700; font-size: 13px; color: var(--primary); margin-bottom: 2px; }
+.challenge-text    { font-size: 12px; color: var(--text-secondary-light); }
+
+.challenge-go {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-full);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.challenge-go:hover { transform: scale(1.06); }
+
+/* ===== 37. الاقتراحات الذكية ===== */
+.smart-suggestions { padding: 4px 0; }
+
+.suggestions-title {
+  font-size: 12px;
+  color: var(--text-secondary-light);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  background: transparent;
+  border-radius: var(--border-radius-md);
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.suggestion-item:hover {
+  background: rgba(var(--primary-rgb, 102, 126, 234), 0.10);
+  transform: translateX(var(--drawer-hover-shift));
+}
+
+.suggestion-icon { font-size: 18px; }
+.suggestion-text { font-size: 13px; font-weight: 500; }
+
+/* ===== 38. Skeleton Loading ===== */
+/* تعريفات .skeleton-text و .skeleton-rect موجودة في components.css */
+/* هذا القسم يحتفظ فقط بتخصيصات Skeleton الخاصة بـ Drawer */
+
+.skeleton-avatar-lg {
+  width: calc(var(--drawer-avatar-size) + 20px);
+  height: calc(var(--drawer-avatar-size) + 20px);
+  border-radius: 50%;
+  background: linear-gradient(90deg,
+    var(--border-color-light) 25%,
+    var(--background-light) 50%,
+    var(--border-color-light) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite; /* من animations.css */
+  margin: var(--space-2) auto var(--space-4);
+  display: block;
+  /* هالة خفيفة مطابقة للأفاتار الحقيقي */
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+[data-theme="light"] .skeleton-avatar-lg {
+  background: linear-gradient(90deg, #eeeeee 25%, #f5f5f5 50%, #eeeeee 75%);
+  background-size: 200% 100%;
+}
+
+[data-theme="dark"] .skeleton-avatar-lg {
+  background: linear-gradient(90deg,
+    var(--border-color-dark) 25%,
+    var(--background-dark)   50%,
+    var(--border-color-dark) 75%);
+  background-size: 200% 100%;
+}
+
+/* ===== 39. أقسام تكيفية حسب الدور ===== */
+[data-role-section] { display: none; }
+
+/* ===== 40. وضع ليلي للمكونات المتقدمة ===== */
+[data-theme="dark"] .daily-challenge {
+  background: rgba(var(--primary-rgb, 102, 126, 234), 0.12);
+  border-color: rgba(var(--primary-rgb, 102, 126, 234), 0.28);
+}
+
+[data-theme="dark"] .challenge-text     { color: var(--text-secondary-dark); }
+
+[data-theme="dark"] .suggestion-item:hover {
+  background: rgba(var(--primary-rgb, 102, 126, 234), 0.15);
+}
+
+[data-theme="dark"] .xp-bar-bg          { background: rgba(255,255,255,0.08); }
+[data-theme="dark"] .xp-text            { color: var(--text-secondary-dark); }
+[data-theme="dark"] .suggestions-title  { color: var(--text-secondary-dark); }
+
+/* ===== 41. تعديلات RTL للمكونات المتقدمة ===== */
+[dir="rtl"] .suggestion-item:hover {
+  transform: translateX(5px);
+}
+
+[dir="ltr"] .suggestion-item:hover {
+  transform: translateX(-5px);
+}
+
+[dir="rtl"] .fav-item:hover {
+  transform: translateX(5px);
+}
+
+[dir="ltr"] .fav-item:hover {
+  transform: translateX(-5px);
+}
+
+[dir="rtl"] .sidebar-link:hover,
+[dir="rtl"] .sidebar-link:focus-visible {
+  transform: translateX(5px);
+}
+
+[dir="ltr"] .sidebar-link:hover,
+[dir="ltr"] .sidebar-link:focus-visible {
+  transform: translateX(-5px);
+}
+
+/* ==== RTL: تأخير حركة عناصر القائمة ==== */
+[dir="rtl"] .sidebar-menu-item {
+  transform: translateX(-16px);
+}
+
+
+
+[dir="rtl"] .sidebar-menu-item {
+  animation-name: slideInMenuRtl;
+}
+
+/* ===== 42. FAB (زر الإضافة العائم خارج الـ Drawer) ===== */
+.fab-button {
+  position: fixed;
+  bottom: 84px;
+  left: 20px;
+  width: 54px;
+  height: 54px;
+  border-radius: var(--border-radius-full);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  box-shadow: 0 6px 18px rgba(var(--primary-rgb), 0.40);
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 900;
+  transition: all 0.28s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab-button:hover {
+  transform: scale(1.10) translateY(-2px);
+  box-shadow: 0 10px 24px rgba(var(--primary-rgb), 0.50);
+}
+
+.fab-button:active { transform: scale(0.96); }
+
+/* ===== 43. التجاوب ===== */
+/* تم نقل جميع أبعاد الـ Responsive إلى variables.css */
+@media (max-width: 767.98px) {
+  .sidebar {
+    width: 88%;
+    max-width: 300px;
+  }
+
+  /* ==== تصغير الأفاتار في الشاشات الصغيرة مع الاحتفاظ بالجودة ==== */
+  /* تم ضبط الأحجام عبر المتغيرات في variables.css */
+
+  /* ==== fallback القديمة ==== */
+  /* تم ضبط حجم fallback عبر المتغيرات في variables.css */
+
+  .user-name  { font-size: var(--font-size-lg); }
+  .stat-item  { font-size: var(--font-size-xs); }
+
+  .quick-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  /* ==== إلغاء تأخير الحركة في الموبايل ==== */
+  .sidebar-menu-item { animation-delay: 0s !important; }
+
+  /* ==== Skeleton أصغر في الموبايل ==== */
+  /* تم ضبط حجم Skeleton عبر المتغيرات في variables.css */
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sidebar { width: 300px; }
+}
+
+/* ===== 44. منع التمرير عند فتح القائمة ===== */
+body.drawer-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== 45. تقليل الحركة ===== */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebar-overlay,
+  .sidebar-link,
+  .close-sidebar,
+  .progress-bar-fill,
+  .sidebar-avatar-frame,
+  .user-streak {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .sidebar-avatar-container .avatar-frame--teacher,
+  .sidebar-avatar-container .avatar-frame--moderator,
+  .sidebar-avatar-container .avatar-frame--gold,
+  .sidebar-avatar-container .avatar-frame--silver,
+  .sidebar-avatar-container .avatar-pulse-ring {
+    animation: none !important;
+  }
+
+  .progress-bar-fill::after { animation: none; }
+}

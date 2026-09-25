@@ -1,0 +1,88 @@
+<!-- ==== صفحة قائمة المجموعات ==== -->
+<div class="page-content groups-page" data-page="groups">
+  <h1 class="visually-hidden">المجموعات - منصة بيولوجست</h1>
+
+  <!-- ==== التنقل التفصيلي ==== -->
+  <nav class="breadcrumb-nav" aria-label="مسار التنقل">
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item"><a href="#" class="breadcrumb-link" data-nav-target="home" aria-label="الرئيسية"><i class="fas fa-home"></i></a></li>
+      <li class="breadcrumb-item active" aria-current="page">المجموعات</li>
+    </ol>
+  </nav>
+
+  <!-- ==== هيدر الصفحة ==== -->
+  <header class="groups-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h2 class="page-title">
+          <i class="fas fa-users title-icon" aria-hidden="true"></i>
+          <span>مجموعاتي</span>
+        </h2>
+        <p class="page-subtitle" id="groups-subtitle">إدارة مجموعاتك التعليمية والتواصل مع الأعضاء</p>
+      </div>
+      <!-- ==== زر إنشاء مجموعة (للمعلم والمشرف فقط) ==== -->
+      <button class="btn btn-primary create-group-btn" id="create-group-btn" style="display: none;">
+        <i class="fas fa-plus-circle"></i> مجموعة جديدة
+      </button>
+    </div>
+  </header>
+
+  <!-- ==== حالة التحميل ==== -->
+  <div class="loading-state" aria-live="polite">
+    <div class="loading-spinner">
+      <div class="spinner-circle"></div>
+    </div>
+    <p class="loading-text">جاري تحميل المجموعات...</p>
+  </div>
+
+  <!-- ==== شبكة المجموعات ==== -->
+  <div class="groups-grid" style="display: none;">
+    <!-- يتم ملؤها ديناميكيًا -->
+  </div>
+
+  <!-- ==== حالة عدم وجود مجموعات ==== -->
+  <div class="groups-empty" style="display: none;">
+    <div class="empty-icon" aria-hidden="true">
+      <i class="fas fa-users-slash"></i>
+    </div>
+    <h3>لا توجد مجموعات</h3>
+    <p id="empty-message">لم تنضم إلى أي مجموعة بعد.</p>
+    <button class="btn btn-primary" id="empty-create-btn" style="display: none;">
+      <i class="fas fa-plus-circle"></i> إنشاء أول مجموعة
+    </button>
+  </div>
+
+  <!-- ==== مودال إنشاء / تعديل مجموعة ==== -->
+  <div id="group-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">إنشاء مجموعة جديدة</h3>
+        <button class="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="group-form">
+          <div class="form-group">
+            <label for="group-name">اسم المجموعة <span class="required">*</span></label>
+            <input type="text" id="group-name" class="form-control" placeholder="مثال: مجموعة التفوق في الأحياء" required>
+          </div>
+          <div class="form-group">
+            <label for="group-description">وصف المجموعة (اختياري)</label>
+            <textarea id="group-description" class="form-control" rows="2" placeholder="وصف مختصر للمجموعة"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="group-members">إضافة أعضاء (أرقام هواتف أو أسماء مستخدمين)</label>
+            <div class="members-input-container">
+              <input type="text" id="member-search" class="form-control" placeholder="ابحث عن مستخدم...">
+              <div id="member-suggestions" class="suggestions-list"></div>
+            </div>
+            <div id="selected-members" class="selected-members"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary modal-cancel">إلغاء</button>
+        <button class="btn btn-primary modal-submit" id="save-group-btn">حفظ</button>
+      </div>
+    </div>
+  </div>
+</div>

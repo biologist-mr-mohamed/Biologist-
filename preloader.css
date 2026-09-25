@@ -1,0 +1,903 @@
+/*
+ * 🚀 css/layout/preloader.css - شاشة التحميل الاحترافية المتكاملة
+ * الإصدار: v5.0.0 | Biologist Platform
+ * ============================================================================
+ * 📌 المسؤولية: تصميم شاشة التحميل (Preloader) بجميع حالاتها وتفاصيلها الدقيقة
+ *
+ * 🎯 الميزات:
+ *   - 3 حالات رئيسية مُدارة بـ CSS classes (لا Inline Styles)
+ *     .preloader-visible / .preloader-hidden / .preloader-fade-out
+ *   - حالات data-preloader-state: loading / hidden / error
+ *   - مؤشر تقدم ديناميكي (Progress Bar)
+ *   - أنيميشن متعددة الطبقات
+ *   - دعم كامل للوضع الليلي والثيمات الخمسة
+ *   - شاشة خطأ كاملة: .error-initialization / .error-icon / .error-message
+ *                      .error-actions / .retry-btn / .support-btn
+ *   - حالات المحتوى الرئيسي: .content-loading / .content-ready
+ *   - دعم RTL كامل
+ *   - prefers-reduced-motion
+ *   - متجاوب مع جميع الشاشات
+ * ============================================================================
+ */
+
+/* ===== الحاوية الرئيسية (Overlay Layer) ===== */
+.preloader {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: linear-gradient(135deg, var(--primary), var(--secondary));
+z-index: 9999;
+display: flex;
+align-items: center;
+justify-content: center;
+opacity: 1;
+visibility: visible;
+transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+will-change: opacity;
+backdrop-filter: blur(0px);
+}
+
+/* ==== حالة الظهور الكامل (تُضاف من main.js عند Preloader.show()) ==== */
+.preloader.preloader-visible {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+
+/* ==== حالة الإخفاء التدريجي (تُضاف أولاً قبل preloader-hidden) ==== */
+.preloader.preloader-fade-out {
+  display: flex;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==== حالة الإخفاء النهائي (تُضاف من main.js بعد 500ms) ==== */
+.preloader.preloader-hidden {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* ==== حالة الخطأ (data-preloader-state="error") ==== */
+.preloader[data-preloader-state="error"] {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+  background: linear-gradient(135deg, #1a1a2e, #2d1b1b);
+}
+
+/* ==== طبقة الخلفية الداخلية (Glassmorphism Layer) ==== */
+.preloader::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ===== محتوى الشاشة الأساسي (Card Layer) ===== */
+.preloader-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  padding: var(--space-6) var(--space-5);
+  background-color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl), 0 20px 40px -12px rgba(0, 0, 0, 0.25);
+  transition: all var(--transition-normal);
+  animation: preloaderFadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* ===== حاوية الشعار ===== */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  animation: logoContainerFloat 3s ease-in-out infinite;
+}
+
+/* ==== شعار الـPreloader — حالة Compact فقط (B بدون حركة فتح/غلق)، راجع
+   docs/LOGO_IDENTITY.md § 2. نفس تقنية CSS Masking المستخدمة في navbar.css،
+   لكن بدون أي [data-state] ولا دورة حركة — B ثابت طول مدة ظهور الشاشة. ==== */
+.preloader-logo {
+  position: relative;
+  width: 85px;
+  height: 85px;
+  filter: drop-shadow(0 8px 20px rgba(102, 126, 234, 0.4));
+  animation: logoPulseAdvanced 2s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+.preloader-logo-teal,
+.preloader-logo-dark {
+  position: absolute;
+  inset: 0;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+.preloader-logo-teal {
+  background-color: var(--logo-teal, var(--accent));
+  mask-image: url('../../assets/icons/logo_icons/teal_mask.png');
+  -webkit-mask-image: url('../../assets/icons/logo_icons/teal_mask.png');
+}
+
+.preloader-logo-dark {
+  background-color: var(--logo-dark, #13274A);
+  mask-image: url('../../assets/icons/logo_icons/dark_mask.png');
+  -webkit-mask-image: url('../../assets/icons/logo_icons/dark_mask.png');
+}
+
+[data-theme="dark"] .preloader-logo-dark {
+  background-color: var(--logo-dark, #C9D6EE);
+}
+
+.preloader-title {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+  animation: titleGlow 2.5s ease-in-out infinite alternate;
+  margin: 0;
+}
+
+/* ==== رقم الإصدار ==== */
+.preloader-version {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--primary);
+  background-color: rgba(102, 126, 234, 0.1);
+  padding: 2px var(--space-2);
+  border-radius: var(--border-radius-full);
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+/* ===== مؤشر التحميل الحلقي (Spinner) ===== */
+.preloader-spinner {
+  margin: var(--space-3) auto;
+  position: relative;
+  width: 70px;
+  height: 70px;
+}
+
+.spinner-circle {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ==== الحلقة الخارجية ==== */
+.spinner-circle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(102, 126, 234, 0.15);
+  border-top-color: var(--primary);
+  border-right-color: var(--accent);
+  animation: spinReversed 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  will-change: transform;
+}
+
+/* ==== الحلقة الداخلية (تستخدم spin من animations.css) ==== */
+.spinner-circle::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(118, 75, 162, 0.15);
+  border-bottom-color: var(--secondary);
+  border-left-color: var(--primary-light);
+  animation: spin 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  will-change: transform;
+}
+
+/* ==== النقطة المركزية النابضة ==== */
+.spinner-inner {
+  position: absolute;
+  inset: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  opacity: 0.15;
+  animation: pulseOpacity 1.5s ease-in-out infinite;
+}
+
+/* ===== النص الرئيسي ===== */
+.preloader-text {
+  display: block;
+  margin-top: var(--space-4);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary-light);
+  letter-spacing: 0.5px;
+  transition: color var(--transition-fast);
+  min-height: 1.5em;
+}
+
+/* ===== شريط التقدم ===== */
+.preloader-progress {
+  width: 100%;
+  max-width: 280px;
+  margin: var(--space-3) auto;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: var(--border-radius-full);
+  transition: width 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+  will-change: width;
+}
+
+/* ==== تأثير اللمعان داخل شريط التقدم (يستخدم shimmer من animations.css) ==== */
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.8s infinite;
+  transform: translateX(-100%);
+  will-change: transform;
+}
+
+/* ===== النص الثانوي والمعلومات ===== */
+.preloader-info {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  opacity: 0.85;
+  transition: opacity var(--transition-fast);
+  min-height: 1.4em;
+}
+
+.preloader-subtext {
+  font-size: var(--font-size-xs);
+  margin-top: var(--space-1);
+  display: inline-block;
+  background-color: rgba(102, 126, 234, 0.1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--border-radius-full);
+  transition: opacity var(--transition-fast);
+}
+
+/* ===== حالات الشاشة (Success / Error) ===== */
+.preloader-state {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--border-radius-lg);
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.preloader-success {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--success);
+}
+
+.preloader-success i {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-2);
+  display: block;
+  animation: bounceSuccess 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.preloader-error {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--error);
+}
+
+.preloader-error i {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-2);
+  display: block;
+  animation: shakeError 0.5s ease-in-out;
+}
+
+/* ===== شاشة الخطأ الكاملة (من main.js → Preloader.showError()) ===== */
+/* ==== الحاوية الخارجية ==== */
+.error-initialization {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 420px;
+  width: 90%;
+  padding: var(--space-6) var(--space-5);
+  background-color: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl), 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: preloaderFadeIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
+  position: relative;
+  z-index: 2;
+}
+
+/* ==== أيقونة الخطأ ==== */
+.error-initialization .error-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.12), rgba(244, 67, 54, 0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(244, 67, 54, 0.2);
+  animation: errorIconPulse 2s ease-in-out infinite;
+}
+
+.error-initialization .error-icon i {
+  font-size: 2.2rem;
+  color: var(--error, #f44336);
+}
+
+/* ==== عنوان الخطأ ==== */
+.error-initialization h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ==== رسالة الخطأ التفصيلية ==== */
+.error-initialization .error-message {
+  font-size: var(--font-size-sm);
+  color: var(--error, #f44336);
+  background-color: rgba(244, 67, 54, 0.06);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--border-radius-md);
+  border-inline-start: 3px solid var(--error, #f44336);
+  text-align: start;
+  width: 100%;
+  word-break: break-word;
+}
+
+/* ==== أزرار الإجراءات ==== */
+.error-initialization .error-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ==== زر إعادة المحاولة ==== */
+.error-initialization .retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  font-family: var(--font-family-arabic);
+  cursor: pointer;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    opacity var(--transition-fast);
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+}
+
+.error-initialization .retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
+}
+
+.error-initialization .retry-btn:active {
+  transform: translateY(0);
+  opacity: 0.9;
+}
+
+.error-initialization .retry-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* ==== زر الدعم ==== */
+.error-initialization .support-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  color: var(--text-secondary-light);
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  font-family: var(--font-family-arabic);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.error-initialization .support-btn:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.25);
+  color: var(--text-primary-light);
+  transform: translateY(-1px);
+}
+
+.error-initialization .support-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* ==== تفاصيل تقنية (details/summary) ==== */
+.error-initialization .error-details {
+  width: 100%;
+  margin-top: var(--space-1);
+}
+
+.error-initialization .error-details details {
+  text-align: start;
+}
+
+.error-initialization .error-details summary {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  user-select: none;
+  padding: var(--space-1) 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  transition: color var(--transition-fast);
+}
+
+.error-initialization .error-details summary:hover {
+  color: var(--text-secondary-light);
+}
+
+.error-initialization .error-details summary::before {
+  content: '▶';
+  font-size: 0.65rem;
+  transition: transform var(--transition-fast);
+}
+
+.error-initialization .error-details details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.error-initialization .error-details pre {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: var(--border-radius-md);
+  font-size: 11px;
+  line-height: 1.6;
+  overflow-x: auto;
+  color: var(--text-secondary-light);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 150px;
+  overflow-y: auto;
+  text-align: start;
+  direction: ltr;
+}
+
+/* ===== زر إعادة المحاولة القديم (من داخل .preloader-error في index.html) ===== */
+.retry-preloader {
+  margin-top: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border: none;
+  color: white;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--border-radius-full);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+  font-family: var(--font-family-arabic);
+}
+
+.retry-preloader:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.retry-preloader:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ===== حالات المحتوى الرئيسي (يُدار من main.js) ===== */
+/* ==== المحتوى أثناء التحميل ==== */
+#main-content.content-loading {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* ==== المحتوى جاهز (بعد إخفاء الـ Preloader) ==== */
+#main-content.content-ready {
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 0.35s ease;
+}
+
+/* ===== رسوم متحركة (Keyframes) خاصة بـ Preloader ===== */
+/* تعريفات keyframes الشائعة (spin, shimmer, fadeInUp, loading) موجودة في animations.css */
+
+/* ==== ظهور المحتوى ==== */
+
+
+/* ==== نبض الشعار ==== */
+
+
+/* ==== طفو الشعار ==== */
+
+
+/* ==== توهج العنوان ==== */
+
+
+/* ==== دوران الحلقة (عكس عقارب الساعة) ==== */
+
+
+/* ==== نبض الشفافية ==== */
+
+
+/* ==== ارتداد أيقونة النجاح ==== */
+
+
+/* ==== اهتزاز أيقونة الخطأ ==== */
+
+
+/* ==== نبض دائرة أيقونة الخطأ ==== */
+
+
+/* ===== الوضع الليلي (Dark Mode) ===== */
+[data-theme="dark"] .preloader {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+}
+
+[data-theme="dark"] .preloader::before {
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(255, 255, 255, 0.03),
+    rgba(0, 0, 0, 0.2)
+  );
+}
+
+[data-theme="dark"] .preloader-content {
+  background-color: rgba(22, 22, 35, 0.97);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-xl), 0 20px 40px -12px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .preloader-text {
+  color: var(--text-primary-dark, #e0e0e0);
+}
+
+[data-theme="dark"] .preloader-info {
+  color: var(--text-secondary-dark, #aaa);
+}
+
+[data-theme="dark"] .preloader-subtext {
+  color: var(--text-secondary-dark, #aaa);
+  background-color: rgba(100, 181, 246, 0.12);
+}
+
+[data-theme="dark"] .preloader-progress {
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .preloader-version {
+  color: var(--primary-light, #90caf9);
+  background-color: rgba(100, 181, 246, 0.1);
+  border-color: rgba(100, 181, 246, 0.2);
+}
+
+[data-theme="dark"] .error-initialization {
+  background-color: rgba(22, 22, 35, 0.98);
+}
+
+[data-theme="dark"] .error-initialization h2 {
+  color: var(--text-primary-dark, #e0e0e0);
+}
+
+[data-theme="dark"] .error-initialization .error-message {
+  background-color: rgba(244, 67, 54, 0.08);
+  color: #ef9a9a;
+}
+
+[data-theme="dark"] .error-initialization .support-btn {
+  color: var(--text-secondary-dark, #aaa);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .error-initialization .support-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--text-primary-dark, #e0e0e0);
+}
+
+[data-theme="dark"] .error-initialization .error-details summary {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .error-initialization .error-details pre {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] #main-content.content-loading {
+  opacity: 0;
+}
+
+/* ===== الثيمات الخمسة ===== */
+/* ==== الثيم الأزرق (default — يستخدم متغيرات CSS مباشرة) ==== */
+.theme-blue .preloader {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+/* ==== الثيم الوردي ==== */
+.theme-pink .preloader {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+/* ==== الثيم الأخضر ==== */
+.theme-green .preloader {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+/* ==== الثيم البنفسجي ==== */
+.theme-purple .preloader {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+/* ==== الثيم البرتقالي ==== */
+.theme-orange .preloader {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+/* ===== التجاوب مع الشاشات ===== */
+@media (max-width: 767.98px) {
+  .preloader-content {
+    width: 88%;
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .preloader-logo {
+    width: 65px;
+    height: 65px;
+  }
+
+  .preloader-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .preloader-spinner {
+    width: 56px;
+    height: 56px;
+  }
+
+  .spinner-circle::after {
+    inset: 10px;
+  }
+
+  .spinner-inner {
+    inset: 22px;
+  }
+
+  .preloader-text {
+    font-size: var(--font-size-base);
+  }
+
+  .preloader-progress {
+    max-width: 220px;
+  }
+
+  .error-initialization {
+    width: 92%;
+    padding: var(--space-5) var(--space-4);
+    gap: var(--space-2);
+  }
+
+  .error-initialization .error-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .error-initialization .error-icon i {
+    font-size: 1.8rem;
+  }
+
+  .error-initialization h2 {
+    font-size: var(--font-size-lg);
+  }
+
+  .error-initialization .error-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .error-initialization .retry-btn,
+  .error-initialization .support-btn {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .preloader-content {
+    width: 94%;
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .preloader-logo {
+    width: 55px;
+    height: 55px;
+  }
+
+  .preloader-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .preloader-spinner {
+    width: 48px;
+    height: 48px;
+  }
+
+  .spinner-circle::after {
+    inset: 8px;
+  }
+
+  .spinner-inner {
+    inset: 18px;
+  }
+
+  .error-initialization {
+    padding: var(--space-4) var(--space-3);
+  }
+}
+
+/* ===== دعم تقليل الحركة (Reduced Motion) ===== */
+@media (prefers-reduced-motion: reduce) {
+  .preloader,
+  .preloader-content,
+  .preloader-logo,
+  .logo-container,
+  .preloader-title,
+  .spinner-circle::before,
+  .spinner-circle::after,
+  .spinner-inner,
+  .progress-bar,
+  .progress-bar::after,
+  .preloader-state,
+  .error-initialization,
+  .error-initialization .error-icon {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .preloader-content {
+    transform: none !important;
+  }
+
+  .preloader-logo {
+    transform: none !important;
+    filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3)) !important;
+  }
+
+  .progress-bar {
+    transition: width 0.1s linear !important;
+  }
+
+  .progress-bar::after {
+    display: none;
+  }
+
+  .preloader.preloader-fade-out {
+    transition: none !important;
+    opacity: 0 !important;
+  }
+
+  #main-content.content-ready {
+    transition: none !important;
+  }
+}
+
+/* ===== دعم RTL ===== */
+[dir="rtl"] .preloader-content {
+  direction: rtl;
+}
+
+[dir="rtl"] .progress-bar::after {
+  background: linear-gradient(
+    -90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+[dir="rtl"] .error-initialization .error-message {
+  border-inline-start: 3px solid var(--error, #f44336);
+  border-inline-end: none;
+}
+
+[dir="rtl"] .error-initialization .error-details details {
+  text-align: end;
+}
+
+[dir="rtl"] .error-initialization .error-details pre {
+  text-align: start;
+}
+
+/* ===== إمكانية الوصول ===== */
+.preloader:focus {
+  outline: none;
+}
+
+.error-initialization .retry-btn:focus-visible,
+.error-initialization .support-btn:focus-visible,
+.retry-preloader:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* ==== منع التمرير أثناء الـ Preloader ==== */
+body:has(.preloader.preloader-visible) {
+  overflow: hidden;
+}
+
+/* نهاية الملف — preloader.css v5.0.0 */

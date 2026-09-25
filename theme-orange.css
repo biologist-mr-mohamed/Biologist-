@@ -1,0 +1,61 @@
+/* ====== 🍊 الثيم البرتقالي (Orange Energy) - الإصدار 5.0.0 ====== */
+/* 📌 ألوان حيوية ودافئة، تحفز النشاط */
+
+:root,
+[data-theme="light"] {
+  --primary: #ff9800;
+  --primary-dark: #f57c00;
+  --primary-light: #ffb74d;
+  --secondary: #ef6c00;
+  --secondary-light: #ffa726;
+  --accent: #ff5722;
+  --accent-dark: #e64a19;
+  
+  --background-light: #fff8e7;
+  --surface-light: #ffffff;
+  --surface-hover-light: rgba(255, 152, 0, 0.08);
+  
+  --text-primary-light: #3a2a1a;
+  --text-secondary-light: #6a5a4a;
+  --text-tertiary-light: #9a8a7a;
+  
+  --border-color-light: rgba(255, 152, 0, 0.2);
+  
+  --shadow-sm: 0 2px 8px rgba(255, 152, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(255, 152, 0, 0.15);
+  --shadow-lg: 0 8px 24px rgba(255, 152, 0, 0.2);
+  --shadow-xl: 0 12px 32px rgba(255, 152, 0, 0.25);
+}
+
+[data-theme="dark"] {
+  --primary: #ffb74d;
+  --primary-dark: #ff9800;
+  --primary-light: #ffcc80;
+  --secondary: #ffa726;
+  --secondary-light: #ffb74d;
+  --accent: #ff8a65;
+  --accent-dark: #ff5722;
+  
+  --background-light: #1a0a00;
+  --surface-light: #2a1a0a;
+  --surface-hover-light: rgba(255, 152, 0, 0.12);
+  
+  --text-primary-light: #fff3e0;
+  --text-secondary-light: #ffcc80;
+  --text-tertiary-light: #ffb74d;
+  
+  --border-color-light: rgba(255, 152, 0, 0.3);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.5);
+}
+
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+}

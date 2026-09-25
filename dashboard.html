@@ -1,0 +1,305 @@
+<!-- ====== views/dashboard/dashboard.html v7.0.0 ====== -->
+<div class="page-content dashboard-page" data-page="dashboard">
+  <h1 class="visually-hidden">لوحة التحكم - منصة بيولوجست</h1>
+
+  <!-- ====== حالة التحميل ====== -->
+  <div class="loading-state" aria-live="polite" id="dashboard-loading-state">
+    <div class="loading-spinner">
+      <div class="spinner-circle"></div>
+    </div>
+    <p class="loading-text">جاري تحميل لوحة التحكم...</p>
+  </div>
+
+  <!-- ====== المحتوى الرئيسي ====== -->
+  <div class="dashboard-content" id="dashboard-content" style="display: none;">
+
+    <!-- ====== رأس الصفحة ====== -->
+    <header class="dashboard-header">
+      <div class="header-title">
+        <h2 class="page-title">
+          <i class="fas fa-tachometer-alt title-icon" aria-hidden="true"></i>
+          <span>لوحة التحكم</span>
+        </h2>
+        <p class="page-subtitle">
+          مرحباً بك، <span id="dashboard-user-name"></span>
+          <span class="role-badge" id="dashboard-role-badge"></span>
+        </p>
+      </div>
+      <div class="header-actions">
+        <!-- ====== زر التحكم بالفصل الدراسي (للمعلم فقط) ====== -->
+        <button class="btn btn-outline" id="change-semester-btn" style="display: none;" type="button">
+          <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+          <span>التحكم بالفصل الدراسي</span>
+        </button>
+        <!-- ====== زر إضافة مشرف (للمعلم فقط) ====== -->
+        <button class="btn btn-primary" id="add-moderator-btn" style="display: none;" type="button">
+          <i class="fas fa-user-plus" aria-hidden="true"></i>
+          <span>إضافة مشرف</span>
+        </button>
+        <!-- ====== زر تحديث البيانات ====== -->
+        <button class="btn btn-secondary" id="refresh-dashboard-btn" type="button" aria-label="تحديث بيانات لوحة التحكم">
+          <i class="fas fa-sync-alt" aria-hidden="true"></i>
+          <span>تحديث</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ====== بطاقات الإحصائيات السريعة (KPI) ====== -->
+    <section class="stats-overview" aria-labelledby="stats-overview-title">
+      <h2 id="stats-overview-title" class="visually-hidden">إحصائيات سريعة</h2>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card" data-stat="students">
+          <div class="stat-icon"><i class="fas fa-users" aria-hidden="true"></i></div>
+          <div class="stat-content">
+            <div class="stat-value" id="stat-total-students">—</div>
+            <div class="stat-label">إجمالي الطلاب</div>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="teachers">
+          <div class="stat-icon"><i class="fas fa-chalkboard-user" aria-hidden="true"></i></div>
+          <div class="stat-content">
+            <div class="stat-value" id="stat-total-teachers">—</div>
+            <div class="stat-label">المعلمين</div>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="moderators">
+          <div class="stat-icon"><i class="fas fa-user-shield" aria-hidden="true"></i></div>
+          <div class="stat-content">
+            <div class="stat-value" id="stat-total-moderators">—</div>
+            <div class="stat-label">المشرفين</div>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="lessons">
+          <div class="stat-icon"><i class="fas fa-book-open" aria-hidden="true"></i></div>
+          <div class="stat-content">
+            <div class="stat-value" id="stat-total-lessons">—</div>
+            <div class="stat-label">الدروس</div>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="exams">
+          <div class="stat-icon"><i class="fas fa-graduation-cap" aria-hidden="true"></i></div>
+          <div class="stat-content">
+            <div class="stat-value" id="stat-total-exams">—</div>
+            <div class="stat-label">الامتحانات</div>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="comments">
+          <div class="stat-icon"><i class="fas fa-comments" aria-hidden="true"></i></div>
+          <div class="stat-content">
+            <div class="stat-value" id="stat-total-comments">—</div>
+            <div class="stat-label">التعليقات</div>
+          </div>
+        </div>
+        <!-- 🔧 إصلاح 1.7: dashboard.js يستهدف stat-total-exam-results أصلًا (renderStatsOverview)
+             لكن البطاقة لم تكن موجودة في الـHTML إطلاقًا -->
+        <div class="stat-card" data-stat="exam-results">
+          <div class="stat-icon"><i class="fas fa-clipboard-check" aria-hidden="true"></i></div>
+          <div class="stat-content">
+            <div class="stat-value" id="stat-total-exam-results">—</div>
+            <div class="stat-label">نتائج الامتحانات</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== تبويبات لوحة التحكم ====== -->
+    <div class="dashboard-tabs">
+      <div class="tabs-header" role="tablist" aria-label="أقسام لوحة التحكم">
+        <button class="tab-btn active" data-tab="overview" role="tab" aria-selected="true" type="button">
+          <i class="fas fa-chart-pie" aria-hidden="true"></i> نظرة عامة
+        </button>
+        <button class="tab-btn" data-tab="students" role="tab" aria-selected="false" type="button">
+          <i class="fas fa-users" aria-hidden="true"></i> الطلاب
+        </button>
+        <button class="tab-btn" data-tab="comments" role="tab" aria-selected="false" type="button">
+          <i class="fas fa-comments" aria-hidden="true"></i> التعليقات
+        </button>
+        <button class="tab-btn teacher-only" data-tab="moderators" style="display: none;" role="tab" aria-selected="false" type="button">
+          <i class="fas fa-user-shield" aria-hidden="true"></i> المشرفين
+        </button>
+        <button class="tab-btn teacher-only" data-tab="trash" style="display: none;" role="tab" aria-selected="false" type="button">
+          <i class="fas fa-trash-alt" aria-hidden="true"></i> المهملات
+        </button>
+        <!-- 🆕 إكمال 1.2: تبويب الشكاوى — كان الكود المرتبط به (fetchComplaints/renderComplaints/
+             switchTab) موجودًا بالكامل في dashboard.js بدون أي تبويب HTML يستضيفه -->
+        <button class="tab-btn teacher-only" data-tab="complaints" style="display: none;" role="tab" aria-selected="false" type="button">
+          <i class="fas fa-exclamation-circle" aria-hidden="true"></i> الشكاوى
+        </button>
+      </div>
+
+      <div class="tabs-content">
+
+        <!-- ====== تبويب النظرة العامة ====== -->
+        <div class="tab-content active" data-tab-content="overview" role="tabpanel">
+          <div class="overview-grid">
+            <div class="chart-card">
+              <h3 class="card-title"><i class="fas fa-chart-pie" aria-hidden="true"></i> توزيع الطلاب حسب المرحلة</h3>
+              <div class="chart-container">
+                <canvas id="students-stage-chart" width="400" height="300" role="img" aria-label="رسم بياني لتوزيع الطلاب حسب المرحلة الدراسية"></canvas>
+                <p class="chart-empty-state" id="students-stage-chart-empty" style="display:none;">لا توجد بيانات كافية بعد</p>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3 class="card-title"><i class="fas fa-chart-bar" aria-hidden="true"></i> توزيع الطلاب حسب الصف الدراسي</h3>
+              <div class="chart-container">
+                <canvas id="students-grade-chart" width="400" height="300" role="img" aria-label="رسم بياني لتوزيع الطلاب حسب الصف الدراسي"></canvas>
+                <p class="chart-empty-state" id="students-grade-chart-empty" style="display:none;">لا توجد بيانات كافية بعد</p>
+              </div>
+            </div>
+            <!-- 🆕 إكمال 1.4: كان JS يستهدف weekly-activity-chart وexam-performance-chart
+                 ببيانات Math.random()/ثابتة، وهذان الـcanvas لم يكونا موجودين إطلاقًا في الـHTML -->
+            <div class="chart-card">
+              <h3 class="card-title"><i class="fas fa-chart-line" aria-hidden="true"></i> النشاط الأسبوعي (امتحانات + تعليقات)</h3>
+              <div class="chart-container">
+                <canvas id="weekly-activity-chart" width="400" height="300" role="img" aria-label="رسم بياني للنشاط الأسبوعي على المنصة"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3 class="card-title"><i class="fas fa-chart-column" aria-hidden="true"></i> أداء الطلاب في الامتحانات</h3>
+              <div class="chart-container">
+                <canvas id="exam-performance-chart" width="400" height="300" role="img" aria-label="رسم بياني لمتوسط أداء الطلاب في أكثر الامتحانات تكرارًا"></canvas>
+              </div>
+            </div>
+            <div class="list-card">
+              <h3 class="card-title"><i class="fas fa-trophy" aria-hidden="true"></i> أوائل الطلاب</h3>
+              <div class="top-students-list" id="top-students-list">
+                <p class="text-muted skeleton-text">جاري التحميل...</p>
+              </div>
+            </div>
+            <!-- 🔧 إصلاح 1.7: dashboard.js يستدعي renderRecentActivities(fetchRecentActivities())
+                 بالفعل، وكان يستهدف عنصرًا غير موجود إطلاقًا في الـHTML -->
+            <div class="list-card">
+              <h3 class="card-title"><i class="fas fa-clock-rotate-left" aria-hidden="true"></i> النشاط الأخير</h3>
+              <div class="recent-activity-list" id="recent-activity-list">
+                <p class="text-muted skeleton-text">جاري التحميل...</p>
+              </div>
+            </div>
+            <div class="list-card">
+              <h3 class="card-title"><i class="fas fa-comment-dots" aria-hidden="true"></i> أحدث التعليقات على المنصة</h3>
+              <div class="recent-comments-list" id="recent-comments-list">
+                <p class="text-muted skeleton-text">جاري التحميل...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== تبويب الطلاب ====== -->
+        <div class="tab-content" data-tab-content="students" role="tabpanel">
+          <div class="section-header">
+            <h3>قائمة الطلاب</h3>
+            <div class="filters">
+              <input type="search" id="student-search" class="form-control" placeholder="بحث بالاسم، الهاتف، أو الرقم..." aria-label="بحث عن طالب">
+              <select id="student-filter-stage" class="form-control" aria-label="فلترة حسب المرحلة">
+                <option value="">كل المراحل</option>
+                <option value="preparatory">إعدادي</option>
+                <option value="secondary">ثانوي</option>
+              </select>
+              <select id="student-filter-grade" class="form-control" aria-label="فلترة حسب الصف">
+                <option value="">كل الصفوف</option>
+                <option value="1">الصف الأول</option>
+                <option value="2">الصف الثاني</option>
+                <option value="3">الصف الثالث</option>
+              </select>
+              <button class="btn btn-sm btn-secondary" id="student-filter-reset" type="button">مسح الفلاتر</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="students-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>الاسم</th>
+                  <th>المرحلة</th>
+                  <th>الصف</th>
+                  <th>النقاط</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="students-table-body">
+                <!-- يتم ملؤها ديناميكيًا -->
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" id="students-pagination">
+            <button class="btn btn-sm btn-secondary" id="students-prev-page" type="button" disabled>السابق</button>
+            <span id="students-page-info">صفحة 1</span>
+            <button class="btn btn-sm btn-secondary" id="students-next-page" type="button">التالي</button>
+          </div>
+        </div>
+
+        <!-- ====== تبويب التعليقات ====== -->
+        <div class="tab-content" data-tab-content="comments" role="tabpanel">
+          <div class="section-header">
+            <h3>إدارة التعليقات العامة</h3>
+            <div class="filters">
+              <select id="comments-filter-type" class="form-control" aria-label="فلترة التعليقات">
+                <option value="all">كل التعليقات</option>
+                <option value="pinned">المثبتة فقط</option>
+              </select>
+            </div>
+          </div>
+          <div class="comments-moderation-list" id="comments-moderation-list">
+            <!-- يتم ملؤها ديناميكيًا -->
+          </div>
+          <div class="pagination" id="comments-pagination">
+            <button class="btn btn-sm btn-secondary" id="comments-load-more" type="button">تحميل المزيد</button>
+          </div>
+        </div>
+
+        <!-- ====== تبويب المشرفين (معلم فقط) ====== -->
+        <div class="tab-content" data-tab-content="moderators" role="tabpanel">
+          <div class="section-header">
+            <h3>إدارة المشرفين</h3>
+            <p class="text-muted" id="moderators-count-label">يمكنك تعيين حتى 5 مشرفين.</p>
+          </div>
+          <div class="moderators-grid" id="moderators-list">
+            <!-- يتم ملؤها ديناميكيًا -->
+          </div>
+        </div>
+
+        <!-- ====== تبويب المهملات (معلم فقط) ====== -->
+        <div class="tab-content" data-tab-content="trash" role="tabpanel">
+          <div class="trash-filters" role="tablist" aria-label="نوع المهملات">
+            <button class="btn btn-sm btn-outline active" data-trash-type="lessons" type="button">الدروس</button>
+            <button class="btn btn-sm btn-outline" data-trash-type="exams" type="button">الامتحانات</button>
+            <button class="btn btn-sm btn-outline" data-trash-type="comments" type="button">التعليقات</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="trash-table">
+              <thead>
+                <tr>
+                  <th>النوع</th>
+                  <th>الاسم/العنوان</th>
+                  <th>تاريخ الحذف</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="trash-table-body">
+                <!-- يتم ملؤها ديناميكيًا -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ====== تبويب الشكاوى (معلم فقط) — إكمال 1.2 ====== -->
+        <div class="tab-content" data-tab-content="complaints" role="tabpanel">
+          <div class="section-header">
+            <h3>شكاوى الطلاب</h3>
+            <div class="filters">
+              <select id="complaint-status-filter" class="form-control" aria-label="فلترة الشكاوى حسب الحالة">
+                <option value="all">كل الحالات</option>
+                <option value="pending">قيد المعالجة</option>
+                <option value="resolved">تم الرد</option>
+                <option value="closed">مغلقة</option>
+              </select>
+            </div>
+          </div>
+          <div class="complaints-list" id="complaints-list">
+            <!-- يتم ملؤها ديناميكيًا -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

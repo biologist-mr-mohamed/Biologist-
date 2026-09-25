@@ -1,0 +1,933 @@
+/* ==========================================================================
+   📁 css/layout/navbar.css - نظام الشريط العلوي والسفلي v5.0.0
+   ==========================================================================
+   📝 المسؤولية: تصميم الشريط العلوي الثابت والشريط السفلي المتحرك.
+   🧩 التكامل:
+       - يعتمد على كلاسات avatar.js الموحدة من components.css
+         (avatar-wrapper, avatar-frame, avatar-image, avatar-sprite-layer, verification-badge)
+       - متغيرات من variables.css (تم نقل جميع متغيرات :root إليها)
+       - دعم RTL كامل، الوضع الليلي، الثيمات الخمسة
+   🔧 التحديثات في v5.0.0 (2026-06-17):
+       - إزالة جميع تعريفات :root ونقل المتغيرات إلى variables.css
+       - إزالة تعريفات avatar classes المكررة (تعتمد الآن على components.css)
+       - إزالة @keyframes pulseRing و framePulse (موجودان في components.css)
+       - الاحتفاظ فقط بتنسيقات navbar الخاصة (حاويات، أزرار، تخطيط)
+       - توحيد كامل مع نظام avatar.js من components.css
+   ========================================================================== */
+/* ===== 2. الشريط العلوي (Navbar Top) ===== */
+.navbar-top {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--navbar-bg-light);
+  backdrop-filter: var(--navbar-blur);
+  -webkit-backdrop-filter: var(--navbar-blur);
+  border-bottom: 1px solid var(--navbar-border-light);
+  box-shadow: var(--navbar-shadow-light);
+  transition: background var(--navbar-transition), border-color var(--navbar-transition);
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+[data-theme="dark"] .navbar-top {
+  background: var(--navbar-bg-dark);
+  border-bottom-color: var(--navbar-border-dark);
+  box-shadow: var(--navbar-shadow-dark);
+}
+
+.navbar-top-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: var(--navbar-height);
+  padding: 0 max(0.75rem, env(safe-area-inset-right)) 0 max(0.75rem, env(safe-area-inset-left));
+  max-width: var(--container-width);
+  margin: 0 auto;
+  gap: 0.75rem;
+}
+
+/* ===== 3. قسم الشعار ===== */
+.logo-section {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: none !important;
+  transform: none !important;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.brand-link:hover {
+  opacity: 0.85;
+}
+
+/* ===== 4. المنطقة اليمنى (أزرار + صورة المستخدم) ===== */
+.navbar-top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+/* ==== الأزرار الدائرية الموحدة ==== */
+.search-btn,
+.theme-toggle,
+.notification-btn,
+.fullscreen-btn {
+  width: var(--navbar-btn-size);
+  height: var(--navbar-btn-size);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-secondary-light);
+  font-size: 1.25rem;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: none;
+}
+
+.search-btn:hover,
+.theme-toggle:hover,
+.notification-btn:hover,
+.fullscreen-btn:hover {
+  background-color: var(--hover-light);
+  color: var(--primary);
+}
+
+.search-btn:active,
+.theme-toggle:active,
+.notification-btn:active,
+.fullscreen-btn:active {
+  transform: scale(0.96);
+}
+
+[data-theme="dark"] .search-btn,
+[data-theme="dark"] .theme-toggle,
+[data-theme="dark"] .notification-btn,
+[data-theme="dark"] .fullscreen-btn {
+  color: var(--text-secondary-dark);
+}
+
+[data-theme="dark"] .search-btn:hover,
+[data-theme="dark"] .theme-toggle:hover,
+[data-theme="dark"] .notification-btn:hover,
+[data-theme="dark"] .fullscreen-btn:hover {
+  background-color: var(--hover-dark);
+  color: var(--primary);
+}
+
+/* ===== 5. التحية الذكية وشارة المستوى وحاوية XP ===== */
+#navbar-smart-greeting {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary-light);
+  white-space: nowrap;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  background-color: var(--hover-light);
+  transition: all var(--transition-fast);
+  display: none;
+}
+
+[data-theme="dark"] #navbar-smart-greeting {
+  background-color: var(--hover-dark);
+  color: var(--text-secondary-dark);
+}
+
+#navbar-user-level {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: none;
+}
+
+.navbar-xp-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .navbar-xp-container {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.xp-bar-bg {
+  width: 70px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .xp-bar-bg {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--xp-start, #FFD700), var(--xp-end, #FFA000));
+  width: 0%;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.xp-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary-light);
+}
+
+/* ===== 6. حاوية الصورة الشخصية في الشريط العلوي ===== */
+
+/* ==== الحاوية الخارجية - نقطة ارتكاز لشارة التوثيق ==== */
+.user-avatar-container {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--avatar-sm-wrapper);
+  height: var(--avatar-sm-wrapper);
+}
+
+/* ==== تصغير avatar-wrapper--sm داخل الشريط العلوي ==== */
+.user-avatar-container .avatar-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar-container .avatar-wrapper--sm .avatar-frame {
+  width: var(--avatar-sm-wrapper);
+  height: var(--avatar-sm-wrapper);
+  padding: var(--avatar-border-width);
+}
+
+.user-avatar-container .avatar-wrapper--sm .avatar-image {
+  width: calc(var(--avatar-sm-wrapper) - var(--avatar-border-width) * 2 - 4px);
+  height: calc(var(--avatar-sm-wrapper) - var(--avatar-border-width) * 2 - 4px);
+}
+
+/* ==== تبسيط إطار الـ Avatar داخل الـ Navbar فقط ====
+   المساحة صغيرة هنا، لذلك نُلغي الـ Gradient الملوّن حسب الدور والـ Gold Pulse
+   ونستخدم نفس تقنية avatar-frame الأصلية (padding + background = حدّ رفيع)
+   لكن بلون ثابت من الـ Theme بدل الـ Gradient.
+   هذا لا يمس avatar-frame في أي مكان آخر (Drawer / Profile / User Card...)
+   لأن التخصيص محصور داخل .user-avatar-container. */
+.user-avatar-container .avatar-frame,
+.user-avatar-container .avatar-frame--teacher,
+.user-avatar-container .avatar-frame--moderator,
+.user-avatar-container .avatar-frame--bronze,
+.user-avatar-container .avatar-frame--silver,
+.user-avatar-container .avatar-frame--gold,
+.user-avatar-container .avatar-frame--guest {
+  /* --accent هو نفس المتغير اللي بيلوّن حرف الـB التيل (.icon-teal { color: var(--accent) })
+     ودايمًا بيتحدّث مع الثيم الخماسي (colorTheme) — فالحلقة بتتلوّن تلقائيًا بنفس لون الـB
+     أيًا كان الثيم المختار، من غير ما نربطها بلون ثابت. */
+  background: rgba(var(--accent-rgb), 0.67);
+  animation: none;
+  box-shadow: none;
+}
+
+/* ==== شارة التوثيق داخل الحاوية (تستخدم كلاس verification-badge من components.css) ==== */
+.user-avatar-container .verification-badge {
+  position: absolute;
+  bottom: -1px;
+  inset-inline-end: -1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  border: 2px solid var(--surface-light);
+  z-index: 10;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  pointer-events: none;
+}
+
+/* ==== ألوان شارة التوثيق حسب الدور (تستخدم متغيرات components.css) ==== */
+.user-avatar-container .verification-badge.badge--teacher {
+  background: linear-gradient(135deg, var(--frame-teacher-start, #667eea), var(--frame-teacher-end, #764ba2));
+  color: white;
+}
+
+.user-avatar-container .verification-badge.badge--moderator {
+  background: linear-gradient(135deg, var(--frame-mod-start, #11998e), var(--frame-mod-end, #38ef7d));
+  color: white;
+}
+
+[data-theme="dark"] .user-avatar-container .verification-badge {
+  border-color: var(--surface-dark);
+}
+
+/* ===== 7. إشعارات الجرس والعداد ===== */
+.notification-bell {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.notification-btn {
+  position: relative;
+}
+
+
+
+
+
+/* ===== 8. الشريط السفلي (Bottom Navigation) ===== */
+.bottom-navigation {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  background: var(--navbar-bg-light);
+  backdrop-filter: var(--navbar-blur);
+  -webkit-backdrop-filter: var(--navbar-blur);
+  height: var(--bottom-nav-height);
+  border-top: 1px solid var(--navbar-border-light);
+  transition: transform var(--navbar-transition);
+  transform: translateZ(0);
+  /* ==== دعم safe-area للهواتف (iPhone notch) ==== */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+[data-theme="dark"] .bottom-navigation {
+  background: var(--navbar-bg-dark);
+  border-top-color: var(--navbar-border-dark);
+}
+
+.bottom-navigation.hide {
+  transform: translateY(100%);
+}
+
+.bottom-nav-items {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+
+.bottom-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: none;
+  border: none;
+  color: var(--text-secondary-light);
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+  cursor: pointer;
+  min-width: 64px;
+  font-family: var(--font-family-arabic);
+}
+
+[data-theme="dark"] .bottom-nav-btn {
+  color: var(--text-secondary-dark);
+}
+
+.bottom-nav-btn i {
+  font-size: 22px;
+  transition: transform 0.15s;
+}
+
+.bottom-nav-btn .bottom-text {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.bottom-nav-btn.active,
+.bottom-nav-btn[aria-selected="true"] {
+  color: var(--primary);
+  background-color: var(--hover-light);
+}
+
+.bottom-nav-btn.active i {
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .bottom-nav-btn.active,
+[data-theme="dark"] .bottom-nav-btn[aria-selected="true"] {
+  background-color: var(--hover-dark);
+  color: var(--primary);
+}
+
+.bottom-nav-btn:active {
+  transform: scale(0.94);
+}
+
+/* ===== 9. نظام البحث المدمج بالشريط (Inline Expanding Search) v6.0.0 =====
+   🧠 الفكرة: بدون أي Overlay منفصل. زر البحث (#global-search-btn) وصندوق
+   البحث (.search-panel) يعيشان في نفس نقطة الارتكاز داخل الشريط:
+     - الحالة المغلقة: .search-panel بعرض/ارتفاع يطابق زر البحث تمامًا
+       (var(--navbar-btn-size)) ومختفي فوقه (الزر هو الظاهر).
+     - الفتح: .search-panel يتوسع بعرضه فقط (width) من نفس نقطة ارتكازه
+       (inset-inline-start: 0 = نفس حافة الزر) فيبدو وكأن الزر "يتمدد"،
+       بينما باقي أزرار الشريط (الثيم/الإشعارات/الأفاتار) تتلاشى بجانبه.
+     - زر الإغلاق (X) هو آخر عنصر داخل .search-panel-bar، وبما أن الاتجاه
+       RTL فهذا يضعه تلقائيًا في أقصى يسار الصندوق الممتد (كما طُلب).
+     - الإغلاق: نفس الأنيميشن بالعكس، فيرجع الصندوق تمامًا لمكان/حجم زر
+       البحث الأصلي (نفس نقطة الارتكاز = لا "قفزة" في النهاية). */
+
+.navbar-search {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ==== زر البحث الدائري (الحالة المغلقة) ==== */
+.navbar-search .search-btn {
+  position: relative;
+  z-index: 2;
+  transition: opacity 0.18s var(--transition-ease), transform 0.18s var(--transition-ease);
+}
+
+.navbar-search.is-open .search-btn {
+  opacity: 0;
+  transform: scale(0.85);
+  pointer-events: none;
+}
+
+/* ==== صندوق البحث القابل للتمدد ==== */
+.search-panel {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--navbar-btn-size);
+  height: var(--navbar-btn-size);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--border-radius-full);
+  background: var(--surface-light);
+  box-shadow: none;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1;
+  transition:
+    width var(--navbar-transition),
+    border-radius var(--navbar-transition),
+    box-shadow var(--navbar-transition),
+    opacity 0.18s var(--transition-ease),
+    visibility 0s linear 0.25s;
+}
+
+[data-theme="dark"] .search-panel {
+  background: var(--surface-dark);
+  border: 1px solid var(--border-color-dark);
+}
+
+.navbar-search.is-open .search-panel {
+  /* العرض الأقصى دلوقتي محسوب فعليًا بالـ JS (--search-max-width) =
+     المسافة الحقيقية من حافة الزرار لحافة الشريط، فمستحيل يتخطى الحدود */
+  width: min(clamp(280px, 32vw, 440px), var(--search-max-width, calc(100vw - 24px)));
+  border-radius: var(--border-radius-lg);
+  opacity: 1;
+  visibility: visible;
+  box-shadow: var(--shadow-lg);
+  z-index: 1500;
+  transition:
+    width var(--navbar-transition),
+    border-radius var(--navbar-transition),
+    box-shadow var(--navbar-transition),
+    opacity 0.18s var(--transition-ease),
+    visibility 0s linear 0s;
+}
+
+.search-panel-bar {
+  display: flex;
+  align-items: center;
+  height: var(--navbar-btn-size);
+  flex-shrink: 0;
+  overflow: hidden;
+  padding-inline-start: var(--space-2);
+}
+
+#search-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-family-arabic);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary-light);
+  padding: 0 var(--space-2);
+  opacity: 0;
+  transition: opacity 0.15s var(--transition-ease);
+}
+
+.navbar-search.is-open #search-input {
+  opacity: 1;
+  transition-delay: 0.12s;
+}
+
+[data-theme="dark"] #search-input {
+  color: var(--text-primary-dark);
+}
+
+#search-input::placeholder {
+  color: var(--text-tertiary-light);
+}
+
+[data-theme="dark"] #search-input::placeholder {
+  color: var(--text-tertiary-dark);
+}
+
+/* ==== زر الإغلاق (X) — آخر عنصر في الصف، فيظهر في أقصى يسار الصندوق RTL ==== */
+.close-search-btn {
+  width: var(--navbar-btn-size);
+  height: var(--navbar-btn-size);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-secondary-light);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  border: none;
+  flex-shrink: 0;
+}
+
+.close-search-btn:hover {
+  background-color: var(--hover-light);
+  color: var(--error);
+}
+
+.close-search-btn:active {
+  transform: scale(0.92);
+}
+
+[data-theme="dark"] .close-search-btn {
+  color: var(--text-secondary-dark);
+}
+
+[data-theme="dark"] .close-search-btn:hover {
+  background-color: var(--hover-dark);
+}
+
+/* ==== قائمة نتائج البحث — Dropdown أسفل الصندوق الممتد ==== */
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: var(--surface-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-2);
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.2s var(--transition-ease), transform 0.2s var(--transition-ease);
+}
+
+.navbar-search.is-open .search-results:not(:empty) {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+[data-theme="dark"] .search-results {
+  background: var(--surface-dark);
+  border: 1px solid var(--border-color-dark);
+}
+
+/* ==== تلاشي باقي أزرار الشريط أثناء توسّع البحث (يتركّز الانتباه على البحث) ==== */
+.navbar-top-right.search-open > *:not(.navbar-search) {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+  transition: opacity 0.18s var(--transition-ease), transform 0.18s var(--transition-ease);
+}
+
+/* ===== 10. مؤشر حالة الاتصال ===== */
+#navbar-online-status {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: 8px;
+  font-size: 0.7rem;
+}
+
+.navbar--online #navbar-online-status { color: var(--success); }
+.navbar--offline #navbar-online-status { color: var(--error); }
+
+/* ===== 11. تحسينات الهواتف (Mobile-First) ===== */
+@media (max-width: 767.98px) {
+  /* ==== إخفاء العناصر غير الضرورية على الهواتف ==== */
+  #navbar-smart-greeting,
+  #navbar-user-level,
+  .navbar-xp-container {
+    display: none !important;
+  }
+
+  .navbar-top-content {
+    padding: 0 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .navbar-top-right {
+    gap: 2.5px;
+    margin-inline-start: auto; /* يثبّت المجموعة في الطرف الأيسر (RTL) بجوار الصورة */
+  }
+
+  .navbar-top .navbar-top-right .search-btn,
+  .navbar-top .navbar-top-right .theme-toggle,
+  .navbar-top .navbar-top-right .notification-btn,
+  .navbar-top .navbar-top-right .fullscreen-btn {
+    min-width: var(--navbar-btn-size);
+    min-height: var(--navbar-btn-size);
+  }
+
+  .search-btn,
+  .theme-toggle,
+  .notification-btn,
+  .fullscreen-btn {
+    width: var(--navbar-btn-size);
+    height: var(--navbar-btn-size);
+    font-size: 1rem;
+  }
+
+  /* تنزيل الشعار واسم المنصة ليتساووا رأسيًا مع أيقونات الشريط */
+  .logo-section {
+    position: relative;
+    top: 5px;
+  }
+
+  .bottom-nav-btn {
+    min-width: 50px;
+    padding: 4px;
+  }
+
+  .bottom-nav-btn i {
+    font-size: 20px;
+  }
+
+  .bottom-nav-btn .bottom-text {
+    font-size: 9px;
+  }
+
+  /* ==== تصغير شارة التوثيق على الهاتف ==== */
+  .user-avatar-container .verification-badge {
+    width: 13px;
+    height: 13px;
+    font-size: 7px;
+    border-width: 1.5px;
+  }
+}
+
+/* ==== للشاشات الصغيرة جداً ==== */
+@media (max-width: 480px) {
+  .bottom-nav-btn {
+    min-width: 44px;
+    padding: 2px;
+  }
+
+  .bottom-nav-btn i {
+    font-size: 18px;
+  }
+
+  .bottom-nav-btn .bottom-text {
+    font-size: 8px;
+  }
+
+  .search-btn,
+  .theme-toggle,
+  .notification-btn,
+  .fullscreen-btn {
+    width: var(--navbar-btn-size);
+    height: var(--navbar-btn-size);
+    font-size: 0.9rem;
+  }
+}
+
+/* =====  للشاشات المتوسطة والكبيرة ===== */
+@media (min-width: 768px) {
+  #navbar-smart-greeting {
+    display: inline-flex;
+  }
+
+  #navbar-user-level {
+    display: inline-flex;
+  }
+
+  .navbar-xp-container {
+    display: flex;
+  }
+
+  /* ==== تأكيد أن الشريط السفلي لا يختفي تلقائياً على الشاشات الكبيرة ==== */
+  .bottom-navigation.hide {
+    transform: translateY(0) !important;
+  }
+}
+
+/* =====  دعم RTL كامل ===== */
+[dir="rtl"] .navbar-top-content {
+  /* flex يعكس الاتجاه تلقائياً مع direction: rtl */
+}
+
+
+
+[dir="rtl"] .user-avatar-container .verification-badge {
+  inset-inline-end: -1px;
+  inset-inline-start: auto;
+}
+
+[dir="rtl"] .bottom-nav-btn i {
+  transform: none;
+}
+
+/* =====  الوصولية والتركيز ===== */
+button:focus-visible,
+[role="button"]:focus-visible,
+.bottom-nav-btn:focus-visible,
+.search-btn:focus-visible,
+.theme-toggle:focus-visible,
+.notification-btn:focus-visible,
+.close-search-btn:focus-visible,
+.user-avatar-container:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+#search-input:focus-visible {
+  outline: none;
+}
+
+.bottom-nav-btn:focus-visible {
+  border-radius: 12px;
+}
+
+/* =====  تحسين الأداء ===== */
+.navbar-top,
+.bottom-navigation {
+  will-change: transform, background;
+  backface-visibility: hidden;
+}
+
+/* ===== 12. البحث كتوسّع ملء-الشريط على الجوال (v7.0.0) =====
+   الصندوق position:fixed دايمًا على الموبايل، وإحداثياته (top/left/width/
+   height) بتتحدد فعليًا بمتغيرات CSS بيظبطها search.js بالقياس الحقيقي
+   (getBoundingClientRect) وقت الفتح/الإغلاق — فيتمدد من نفس مكان الزرار
+   لحد ما يملا الشريط، ويرجع بالعكس بالظبط. */
+@media (max-width: 767.98px) {
+  .search-panel {
+    position: fixed;
+    top: var(--search-fixed-top, 50%);
+    /* ⚠️ نستخدم left/right الفعليين (مش inset-inline-*): في RTL كان
+       inset-inline-end بيتحول لـ left وبيلغي قيمة left اللي فوقه، فالصندوق
+       كان بيسقط على مكانه الطبيعي بدل الإحداثيات المقاسة. */
+    right: auto;
+    left: var(--search-fixed-left, auto);
+    transform: none;
+    width: var(--search-fixed-width, var(--navbar-btn-size));
+    height: var(--search-fixed-height, var(--navbar-btn-size));
+    transition:
+      top var(--navbar-transition),
+      left var(--navbar-transition),
+      width var(--navbar-transition),
+      height var(--navbar-transition),
+      border-radius var(--navbar-transition),
+      box-shadow var(--navbar-transition),
+      opacity 0.18s var(--transition-ease),
+      visibility 0s linear 0.25s;
+  }
+
+  .navbar-search.is-open .search-panel {
+    /* لازم نعيد تحديد العرض/الارتفاع هنا، وإلا قاعدة الديسكتوب
+       (.navbar-search.is-open .search-panel) بتفرض عرضها (~280px) على الجوال */
+    width: var(--search-fixed-width, var(--navbar-btn-size));
+    height: var(--search-fixed-height, var(--navbar-btn-size));
+    opacity: 1;
+    visibility: visible;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    transition:
+      top var(--navbar-transition),
+      left var(--navbar-transition),
+      width var(--navbar-transition),
+      height var(--navbar-transition),
+      border-radius var(--navbar-transition),
+      box-shadow var(--navbar-transition),
+      opacity 0.18s var(--transition-ease),
+      visibility 0s linear 0s;
+  }
+
+  /* صف الإنبوت يملا ارتفاع الصندوق (ارتفاع الشريط) عشان الإنبوت وزر X يتوسطوا رأسيًا */
+  .search-panel-bar {
+    height: 100%;
+  }
+
+  /* إخفاء الشعار واسم المنصة بالكامل وقت فتح البحث */
+  #navbar-top.search-active .logo-section {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s var(--transition-ease);
+  }
+}
+
+/* ===== 13. اللوجو الديناميكي (B/DNA + iologist) — راجع docs/LOGO_IDENTITY.md =====
+   منقول حرفيًا من مختبر الاختبار (Logo Identity Lab) — نفس البنية والحركة تمامًا.
+   التوقيت (بداية → فتح → ثبات 3 ثوانٍ → إغلاق → رجوع للأصل → تكرار) في
+   js/ui/logo-animation.js، اللي بيبدّل [data-state] و[data-phase="closing"] بس.
+   كل الحركة الفعلية (transform / clip-path) transitions هنا.
+   العنصر مستقل الاتجاه (LTR) دايمًا بغض النظر عن اتجاه الصفحة عشان "Biologist"
+   تتقرأ صح. الكلمة (iologist) ثابتة بعرضها الكامل ومكشوفة بـclip-path فقط —
+   B هو اللي بيتحرك ويكبر/يصغر (scale) فعليًا. */
+.dynamic-logo {
+  direction: ltr;
+  display: block;
+  position: relative;
+  width: calc(var(--logo-word-left) + var(--logo-word-width));
+  height: var(--logo-icon-size);
+  isolation: isolate;
+  white-space: nowrap;
+}
+
+/* ==== الـB (الأيقونة الدائمة — دايمًا ظاهرة) ==== */
+.dynamic-logo-icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: var(--logo-icon-size);
+  height: var(--logo-icon-size);
+  transform-origin: center center;
+  /* الحالة الافتراضية = مغلق: B بحجمه الأكبر وفي موضعه الأصلي */
+  transform: translateX(0) scale(var(--logo-b-scale-closed));
+  transition: transform var(--logo-motion-duration) var(--logo-motion-ease);
+  will-change: transform;
+}
+
+/* الفتح: B يصغر ويتحرك بنفس اللحظة اللي الكلمة بتتكشف فيها */
+.dynamic-logo[data-state="full"] .dynamic-logo-icon {
+  transform: translateX(var(--logo-b-shift)) scale(var(--logo-b-scale-open));
+}
+
+/* الإغلاق: B يكبر ويكمل حركته لليمين حتى تلامس حافته اليمنى آخر حرف في الكلمة */
+.dynamic-logo[data-phase="closing"] .dynamic-logo-icon {
+  transform: translateX(var(--logo-b-shift-close)) scale(var(--logo-b-scale-closed));
+}
+
+/* ==== كلمة iologist — رسمة ثابتة بعرضها الكامل، مكشوفة بـclip-path فقط ==== */
+.dynamic-logo-word {
+  position: absolute;
+  left: var(--logo-word-left);
+  top: 0;
+  z-index: 1;
+  width: var(--logo-word-width);
+  height: var(--logo-word-height);
+  overflow: hidden;
+  clip-path: inset(0 0 0 100%);
+  -webkit-clip-path: inset(0 0 0 100%);
+  transition: clip-path var(--logo-motion-duration) var(--logo-motion-ease);
+  will-change: clip-path;
+}
+
+.dynamic-logo[data-state="full"] .dynamic-logo-word {
+  clip-path: inset(0 0 0 0%);
+  -webkit-clip-path: inset(0 0 0 0%);
+}
+
+/* ==== الماسكات — نفس تقنية teal_mask/dark_mask المعتمدة في LOGO_IDENTITY.md ==== */
+.dynamic-logo .mask {
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  pointer-events: none;
+}
+
+.dynamic-logo .icon-teal {
+  color: var(--accent);
+  -webkit-mask-image: url('../../assets/icons/logo_icons/teal_mask.png');
+  mask-image: url('../../assets/icons/logo_icons/teal_mask.png');
+}
+
+.dynamic-logo .icon-dark {
+  color: var(--logo-dark);
+  -webkit-mask-image: url('../../assets/icons/logo_icons/dark_mask.png');
+  mask-image: url('../../assets/icons/logo_icons/dark_mask.png');
+}
+
+.dynamic-logo .word-teal {
+  color: var(--accent);
+  -webkit-mask-image: url('../../assets/icons/logo_icons/word_teal_mask.png');
+  mask-image: url('../../assets/icons/logo_icons/word_teal_mask.png');
+}
+
+.dynamic-logo .word-dark {
+  color: var(--logo-dark);
+  -webkit-mask-image: url('../../assets/icons/logo_icons/word_dark_mask.png');
+  mask-image: url('../../assets/icons/logo_icons/word_dark_mask.png');
+}
+
+/* ==== تقليل الحركة: تجميد فوري بدون أي انتقال ==== */
+@media (prefers-reduced-motion: reduce) {
+  .dynamic-logo-icon,
+  .dynamic-logo-word {
+    transition: none !important;
+  }
+}
+
+/* ==== تصغير طفيف على الهاتف ليتماشى مع باقي أيقونات الشريط ====
+   نفس منطق --logo-icon-size/--logo-word-width بس بقيم أصغر — الحسابات
+   (--logo-b-shift, --logo-b-shift-close) بتتظبط لوحدها تلقائيًا عبر calc(). */
+@media (max-width: 767.98px) {
+  .dynamic-logo {
+    --logo-icon-size: 29px;
+    --logo-word-height: 29px;
+    --logo-word-width: 55px;
+    --logo-word-left: 20px;
+  }
+}

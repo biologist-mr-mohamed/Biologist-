@@ -1,0 +1,853 @@
+/*
+ * 📊 views/dashboard/dashboard.css - أنماط لوحة التحكم المتكاملة v5.0.0
+ * ============================================================================
+ * 📝 المسؤولية: تصميم كامل للوحة التحكم (dashboard.html) ليتكامل مع dashboard.js
+ * ✅ الميزات:
+ *   - بطاقات إحصائيات KPI مع تأثيرات hover و transition
+ *   - تبويبات احترافية مع مؤشر نشط وتمرير أفقي على الموبايل
+ *   - جداول بيانات (Data Tables) مع تمرير أفقي وتصميم نظيف
+ *   - بطاقات إدارة المشرفين (moderator cards) مع خيارات ترقية/حذف
+ *   - عناصر تعديل التعليقات (comment moderation) مع أزرار رد/حذف
+ *   - فلاتر المهملات (Trash filters) بأزرار تفعيل
+ *   - رسوم بيانية متجاوبة (Chart.js) ضمن حاويات مرنة
+ *   - دعم كامل للوضع الليلي والثيمات الملونة (متغيرات CSS)
+ *   - تصميم متجاوب (Mobile-First) مع تحسينات للأجهزة اللوحية والهواتف
+ *   - احترام تفضيل تقليل الحركة (prefers-reduced-motion)
+ *   - دعم كامل لـ RTL عبر inset-inline والمنطقيات
+ * ============================================================================
+ */
+
+/* ===== 1. الصفحة الرئيسية ===== */
+.dashboard-page {
+  animation: fadeIn var(--transition-normal) ease-out;
+  padding-block: var(--space-4);
+  min-height: 100%;
+}
+
+/* ===== 2. حالة التحميل ===== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  gap: var(--space-4);
+  background-color: var(--surface-light);
+  border-radius: var(--border-radius-xl);
+  margin: var(--space-4) auto;
+  max-width: 400px;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  position: relative;
+}
+
+.spinner-circle {
+  width: 100%;
+  height: 100%;
+  border: 4px solid rgba(var(--primary-rgb), 0.2);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  color: var(--text-secondary-light);
+  font-weight: 500;
+}
+
+/* ===== 3. رأس الصفحة ===== */
+.dashboard-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--border-color-light);
+}
+
+.header-title {
+  flex: 1;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-1);
+}
+
+.title-icon {
+  color: var(--primary);
+  font-size: var(--font-size-2xl);
+}
+
+.page-subtitle {
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-base);
+}
+
+#dashboard-user-name {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* ===== 4. بطاقات الإحصائيات (KPI) ===== */
+.stats-overview {
+  margin-bottom: var(--space-8);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.stat-card {
+  background: linear-gradient(145deg, var(--surface-light), var(--background-light));
+  border-radius: var(--border-radius-xl);
+  padding: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  border: 1px solid var(--border-color-light);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--border-radius-lg);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-2xl);
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  color: var(--text-primary-light);
+  line-height: 1.2;
+  margin-bottom: var(--space-1);
+}
+
+.stat-label {
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+/* ===== 5. التبويبات ===== */
+.dashboard-tabs {
+  background-color: var(--surface-light);
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--border-color-light);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.tabs-header {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: var(--background-light);
+  border-bottom: 1px solid var(--border-color-light);
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs-header::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn {
+  padding: var(--space-2) var(--space-5);
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: var(--text-secondary-light);
+  border-radius: var(--border-radius-full);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-family-arabic);
+}
+
+.tab-btn:hover {
+  background-color: var(--hover-light);
+  color: var(--primary);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.tabs-content {
+  padding: var(--space-5);
+}
+
+.tab-content {
+  display: none;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ===== 6. نظرة عامة (Grid داخلي) ===== */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-5);
+}
+
+.chart-card,
+.list-card {
+  background: var(--surface-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4);
+  border: 1px solid var(--border-color-light);
+  transition: all var(--transition-normal);
+}
+
+.chart-card:hover,
+.list-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--primary);
+  display: inline-flex;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  margin-top: var(--space-2);
+}
+
+/* قوائم المتفوقين وآخر النشاطات */
+.top-students-list,
+.recent-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.top-student-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-light);
+  transition: all var(--transition-fast);
+}
+
+.top-student-item:hover {
+  background-color: var(--hover-light);
+  transform: translateX(5px);
+}
+
+.rank {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-full);
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.student-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+  flex-shrink: 0;
+}
+
+.student-info {
+  flex: 1;
+}
+
+.student-name {
+  display: block;
+  font-weight: 700;
+  color: var(--text-primary-light);
+}
+
+.student-score {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-light);
+  transition: all var(--transition-fast);
+}
+
+.activity-item:hover {
+  background-color: var(--hover-light);
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-full);
+  background: rgba(var(--primary-rgb), 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: var(--font-size-lg);
+}
+
+.activity-details {
+  flex: 1;
+}
+
+.activity-details span {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary-light);
+}
+
+.activity-details small {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary-light);
+}
+
+/* ===== 7. الجداول ===== */
+.table-responsive {
+  overflow-x: auto;
+  margin-top: var(--space-4);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color-light);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: right;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.data-table th {
+  background-color: var(--background-light);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  white-space: nowrap;
+}
+
+.data-table td {
+  color: var(--text-secondary-light);
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--hover-light);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.btn-sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+  min-height: unset;
+}
+
+/* أزرار الإجراءات */
+.btn-success {
+  background-color: var(--success);
+  color: white;
+  border: none;
+}
+.btn-success:hover {
+  background-color: var(--success-dark, #45a049);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background-color: var(--error);
+  color: white;
+  border: none;
+}
+.btn-danger:hover {
+  background-color: var(--error-dark, #d32f2f);
+  transform: translateY(-1px);
+}
+
+/* ===== 8. قائمة المشرفين (بطاقات) ===== */
+.moderators-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.moderator-card {
+  background: var(--surface-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  transition: all var(--transition-normal);
+}
+
+.moderator-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.moderator-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary);
+  flex-shrink: 0;
+}
+
+.moderator-info {
+  flex: 1;
+}
+
+.moderator-info h4 {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-1);
+}
+
+.moderator-info p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  margin-bottom: var(--space-2);
+}
+
+.badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.badge-primary {
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+}
+
+.badge-secondary {
+  background: rgba(var(--secondary-rgb, 118, 75, 162), 0.1);
+  color: var(--secondary);
+}
+
+.moderator-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-direction: column;
+}
+
+.moderator-actions .btn-sm {
+  width: 100%;
+  white-space: nowrap;
+}
+
+/* ===== 9. التعليقات (قائمة التعديل) ===== */
+.comments-moderation-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.comment-moderation-item {
+  background: var(--surface-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4);
+  transition: all var(--transition-fast);
+}
+
+.comment-moderation-item:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--primary);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.comment-header strong {
+  color: var(--text-primary-light);
+  font-weight: 700;
+}
+
+.comment-date {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary-light);
+}
+
+.comment-text {
+  color: var(--text-secondary-light);
+  line-height: 1.6;
+  margin-bottom: var(--space-3);
+  word-break: break-word;
+}
+
+.comment-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+/* ===== 10. المهملات (فلاتر + جدول) ===== */
+.trash-filters {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.trash-filters .btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color-light);
+  color: var(--text-secondary-light);
+}
+
+.trash-filters .btn-outline.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* ===== 11. أزرار الإجراءات داخل الجداول ===== */
+.data-table .btn-sm {
+  margin-inline: 2px;
+}
+
+/* ===== 12. حالة عدم وجود بيانات ===== */
+.text-muted {
+  color: var(--text-secondary-light);
+  text-align: center;
+  padding: var(--space-4);
+}
+
+/* ===== 13. تحسينات رأس الصفحة والمرشحات ===== */
+.filters {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.section-header h3 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary-light);
+}
+
+/* ===== 14. التجاوب (Responsive) ===== */
+@media (max-width: 767.98px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: flex-start;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs-header {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding: var(--space-2);
+  }
+
+  .tab-btn {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-sm);
+  }
+
+  .tabs-content {
+    padding: var(--space-3);
+  }
+
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .moderators-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comment-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .comment-actions {
+    justify-content: flex-start;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+
+  .moderator-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .moderator-actions {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .moderator-actions .btn-sm {
+    flex: 1;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .moderators-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===== 15. الوضع الليلي (Dark Mode) ===== */
+[data-theme="dark"] .dashboard-page {
+  background-color: var(--background-dark);
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .chart-card,
+[data-theme="dark"] .list-card,
+[data-theme="dark"] .moderator-card,
+[data-theme="dark"] .comment-moderation-item,
+[data-theme="dark"] .loading-state {
+  background-color: var(--surface-dark);
+  border-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .tabs-header,
+[data-theme="dark"] .data-table th {
+  background-color: var(--background-dark);
+  border-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .top-student-item,
+[data-theme="dark"] .activity-item {
+  background-color: var(--background-dark);
+}
+
+[data-theme="dark"] .data-table td {
+  border-color: var(--border-color-dark);
+  color: var(--text-secondary-dark);
+}
+
+[data-theme="dark"] .text-muted {
+  color: var(--text-tertiary-dark);
+}
+
+[data-theme="dark"] .page-subtitle,
+[data-theme="dark"] .stat-label {
+  color: var(--text-secondary-dark);
+}
+
+[data-theme="dark"] .student-name,
+[data-theme="dark"] .activity-details span,
+[data-theme="dark"] .moderator-info h4,
+[data-theme="dark"] .comment-header strong {
+  color: var(--text-primary-dark);
+}
+
+[data-theme="dark"] .activity-icon {
+  background: rgba(var(--primary-rgb), 0.2);
+}
+
+[data-theme="dark"] .trash-filters .btn-outline {
+  border-color: var(--border-color-dark);
+  color: var(--text-secondary-dark);
+}
+
+[data-theme="dark"] .trash-filters .btn-outline.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* ===== 16. دعم تقليل الحركة ===== */
+@media (prefers-reduced-motion: reduce) {
+  .stat-card,
+  .moderator-card,
+  .comment-moderation-item,
+  .top-student-item,
+  .activity-item,
+  .tab-btn,
+  .btn-sm {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* ===== 17. تحسينات الوصولية ===== */
+.tab-btn:focus-visible,
+.btn:focus-visible,
+.moderator-actions .btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== 18. دعم RTL للعناصر الخاصة ===== */
+[dir="rtl"] .top-student-item:hover {
+  transform: translateX(-5px);
+}
+
+[dir="rtl"] .comment-actions {
+  justify-content: flex-start;
+}
+
+[dir="rtl"] .moderator-actions {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+/* ===== 19. أنماط إضافية لأزرار التعديل داخل الجداول ===== */
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color-light);
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--hover-light);
+  border-color: var(--primary);
+}
+
+/* ===== 20. تحسين عرض النماذج داخل المودالات (إذا استخدمت في التعديل) ===== */
+.modal-prompt .form-group {
+  margin-bottom: var(--space-4);
+}
+
+.modal-prompt .form-control {
+  width: 100%;
+  padding: var(--space-2);
+  border-radius: var(--border-radius-md);
+}
+
+/* ===== 21. دعم شريط التقدم (اختياري) ===== */
+.progress-bar-container {
+  height: 6px;
+  background-color: var(--border-color-light);
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  width: 0%;
+  transition: width 0.3s ease;
+}

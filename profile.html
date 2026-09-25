@@ -1,0 +1,575 @@
+<!-- ==== هيكل صفحة الملف الشخصي المتكامل - v5.0.0 مع التعديلات المطلوبة ==== -->
+<div class="page-content profile-page" data-page="profile">
+  <h1 class="visually-hidden">ملفك الشخصي - منصة بيولوجست التعليمية</h1>
+
+  <!-- ==== حالة التحميل العامة ==== -->
+  <div class="profile-loading-state" id="profile-loading-state" aria-live="polite" hidden>
+    <div class="loading-spinner">
+      <div class="spinner-circle"></div>
+    </div>
+    <p class="loading-text">جاري تحميل بيانات ملفك الشخصي...</p>
+  </div>
+
+  <!-- ==== هيدر الملف الشخصي ==== -->
+  <section class="profile-header-section" id="profile-header-section">
+    <div class="container">
+      <div class="profile-header">
+
+        <!-- ==== كتلة الصورة الشخصية والمعلومات ==== -->
+        <div class="profile-identity">
+
+          <!-- ==== الصورة الرمزية مع إطارها ==== -->
+          <div class="profile-avatar-wrapper">
+            <div class="avatar-ring" id="avatar-ring">
+              <div class="profile-avatar-circle">
+                <div class="avatar-sprite" id="avatar-sprite"></div>
+                <button type="button" class="change-avatar-btn private-section" data-action="change-avatar" aria-label="تغيير الوظيفة">
+                  <i class="fas fa-briefcase" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <!-- ==== علامة التوثيق ==== -->
+            <div class="verification-badge" id="verification-badge" aria-label="حساب موثق" hidden>
+              <i class="fas fa-check-circle" aria-hidden="true"></i>
+            </div>
+          </div>
+
+          <!-- ==== بيانات الهوية ==== -->
+          <div class="profile-identity-info">
+            <h2 class="profile-name" id="profile-name">الضيف</h2>
+            <div class="profile-badge-row">
+              <span class="profile-user-badge" id="profile-user-badge">
+                <i class="fas fa-crown" aria-hidden="true"></i>
+                <span class="badge-text" id="badge-text">طالب جديد</span>
+              </span>
+            </div>
+            <div class="profile-meta-row">
+              <span class="profile-meta-item">
+                <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                <span id="meta-stage">يرجى تسجيل الدخول</span>
+              </span>
+              <span class="profile-meta-item">
+                <i class="fas fa-school" aria-hidden="true"></i>
+                <span id="meta-grade">--</span>
+              </span>
+              <span class="profile-meta-item">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                <span id="meta-joined">عضو منذ: --</span>
+              </span>
+            </div>
+
+            <!-- ==== بطاقة الـ Streak المصغرة ==== -->
+            <div class="streak-badge" id="streak-badge" hidden>
+              <span class="streak-fire-icon" aria-hidden="true">🔥</span>
+              <span class="streak-count" id="streak-count">0</span>
+              <span class="streak-label">يوم متتالي</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==== بطاقات الإحصائيات السريعة ==== -->
+        <div class="profile-stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true"><i class="fas fa-book-open"></i></div>
+            <div class="stat-value" data-stat="completed-lessons">0</div>
+            <div class="stat-label">دروس مكتملة</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true"><i class="fas fa-clipboard-check"></i></div>
+            <div class="stat-value" data-stat="exams-completed">0</div>
+            <div class="stat-label">امتحانات</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-value" data-stat="average-score">0%</div>
+            <div class="stat-label">متوسط الدرجة</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true"><i class="fas fa-award"></i></div>
+            <div class="stat-value" data-stat="achievements">0</div>
+            <div class="stat-label">إنجازات</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true"><i class="fas fa-clock"></i></div>
+            <div class="stat-value" data-stat="study-time">0 ساعة</div>
+            <div class="stat-label">وقت الدراسة</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true"><i class="fas fa-fire"></i></div>
+            <div class="stat-value" data-stat="streak-header">0</div>
+            <div class="stat-label">أيام متتالية</div>
+          </div>
+        </div>
+
+        <!-- ==== شريط التقدم العام ==== -->
+        <div class="profile-progress-bar-section">
+          <div class="progress-label-row">
+            <span class="progress-label-text">التقدم التعليمي العام</span>
+            <span class="progress-percentage-text" data-stat="overall-progress">0%</span>
+          </div>
+          <div class="progress-bar-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar-container">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==== قسم التبويبات ==== -->
+  <section class="profile-tabs-section">
+    <div class="container">
+      <div class="tabs-wrapper">
+
+        <!-- ==== رأس التبويبات ==== -->
+        <div class="tabs-header" role="tablist" aria-label="أقسام الملف الشخصي">
+          <button type="button" class="tab-btn active" data-tab="profile" role="tab" aria-selected="true" aria-controls="tab-content-profile">
+            <i class="fas fa-user" aria-hidden="true"></i>
+            <span>الملف الشخصي</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="favorites" role="tab" aria-selected="false" aria-controls="tab-content-favorites">
+            <i class="fas fa-star" aria-hidden="true"></i>
+            <span>المفضلة</span>
+            <span class="tab-count-badge" data-stat="favorites-count" aria-label="عدد المفضلات">0</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="achievements" role="tab" aria-selected="false" aria-controls="tab-content-achievements">
+            <i class="fas fa-trophy" aria-hidden="true"></i>
+            <span>الإنجازات</span>
+            <span class="tab-count-badge" data-stat="achievements-count" aria-label="عدد الإنجازات">0</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="activity" role="tab" aria-selected="false" aria-controls="tab-content-activity">
+            <i class="fas fa-history" aria-hidden="true"></i>
+            <span>النشاط الأخير</span>
+          </button>
+        </div>
+
+        <!-- ==== محتوى التبويبات ==== -->
+        <div class="tabs-body">
+
+          <!-- ================= تبويب: الملف الشخصي ================= -->
+          <div class="tab-content active" id="tab-content-profile" data-tab-content="profile" role="tabpanel">
+            <div class="tab-inner">
+
+              <!-- ==== عرض الضيف ==== -->
+              <div class="guest-message" id="guest-message" hidden>
+                <div class="guest-icon" aria-hidden="true">
+                  <i class="fas fa-user-lock"></i>
+                </div>
+                <h2>يرجى تسجيل الدخول</h2>
+                <p>للاطلاع على ملفك الشخصي الكامل، يرجى تسجيل الدخول أو إنشاء حساب جديد</p>
+                <div class="guest-actions">
+                  <button type="button" class="btn btn-primary btn-large" data-nav-target="login">
+                    <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                    تسجيل الدخول
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-large" data-nav-target="register">
+                    <i class="fas fa-user-plus" aria-hidden="true"></i>
+                    إنشاء حساب
+                  </button>
+                </div>
+              </div>
+
+              <!-- ==== عرض المستخدم المسجل ==== -->
+              <div class="logged-user-content" id="logged-user-content" hidden>
+                <div class="user-details-grid">
+
+                  <!-- ==== بطاقة: المعلومات الشخصية (عامة) ==== -->
+                  <div class="user-detail-card">
+                    <h3 class="detail-card-title">
+                      <i class="fas fa-user-alt" aria-hidden="true"></i>
+                      المعلومات الشخصية
+                    </h3>
+                    <div class="detail-row">
+                      <span class="detail-label">الاسم الكامل:</span>
+                      <span class="detail-value" data-user="full-name">--</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">رقم الهاتف:</span>
+                      <span class="detail-value" data-user="phone">--</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">البريد الإلكتروني:</span>
+                      <span class="detail-value" data-user="email">--</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">العمر:</span>
+                      <span class="detail-value" data-user="age">--</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">الجنس:</span>
+                      <span class="detail-value" data-user="gender">--</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">المرحلة الدراسية:</span>
+                      <span class="detail-value" data-user="stage">--</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">الصف الدراسي:</span>
+                      <span class="detail-value" data-user="grade">--</span>
+                    </div>
+                    
+                    <!-- ==== المستوى وشريط التقدم إلى المستوى التالي ==== -->
+                    <div class="detail-row">
+                      <span class="detail-label">المستوى التقديري:</span>
+                      <span class="detail-value detail-badge" id="user-level-name">--</span>
+                    </div>
+                    <div class="level-progress-container" id="level-progress-container">
+                      <div class="level-progress-label">
+                        <span>التقدم إلى المستوى التالي</span>
+                        <span id="level-progress-percent">0%</span>
+                      </div>
+                      <div class="progress-bar-container small">
+                        <div class="progress-bar-fill" id="level-progress-fill"></div>
+                      </div>
+                      <div class="level-points-needed" id="level-points-needed">0 نقطة متبقية</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                      <span class="detail-label">اسم المستخدم:</span>
+                      <span class="detail-value detail-username" data-user="username">--</span>
+                    </div>
+                  </div>
+
+                  <!-- ==== بطاقة: إحصائيات متقدمة + الرسم البياني ==== -->
+                  <div class="user-detail-card">
+                    <h3 class="detail-card-title">
+                      <i class="fas fa-chart-pie" aria-hidden="true"></i>
+                      إحصائيات متقدمة
+                    </h3>
+                    <div class="stat-chart-container">
+                      <canvas id="profile-chart" width="220" height="220" aria-label="رسم بياني لتقدم الدراسة" role="img"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                      <div class="legend-item">
+                        <span class="legend-color legend-color-primary"></span>
+                        <span class="legend-label">الدروس المكتملة</span>
+                      </div>
+                      <div class="legend-item">
+                        <span class="legend-color legend-color-muted"></span>
+                        <span class="legend-label">الدروس المتبقية</span>
+                      </div>
+                    </div>
+                    <!-- ==== ملخص الامتحانات ==== -->
+                    <div class="exams-summary">
+                      <h4 class="exams-summary-title">
+                        <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+                        ملخص الامتحانات
+                      </h4>
+                      <div class="exams-summary-row">
+                        <span class="exams-summary-label">إجمالي الامتحانات:</span>
+                        <span class="exams-summary-value" data-stat="total-exams">--</span>
+                      </div>
+                      <div class="exams-summary-row">
+                        <span class="exams-summary-label">الامتحانات المنجزة:</span>
+                        <span class="exams-summary-value" data-stat="exams-completed-detail">--</span>
+                      </div>
+                      <div class="exams-summary-row">
+                        <span class="exams-summary-label">أفضل درجة:</span>
+                        <span class="exams-summary-value" data-stat="best-exam-score">--</span>
+                      </div>
+                      <div class="exams-summary-row">
+                        <span class="exams-summary-label">إجمالي النقاط:</span>
+                        <span class="exams-summary-value" data-stat="total-score">--</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ==== بطاقة: رحلة التعلم (Learning Journey) جديدة ==== -->
+                  <div class="user-detail-card">
+                    <h3 class="detail-card-title">
+                      <i class="fas fa-road" aria-hidden="true"></i>
+                      رحلة التعلم
+                    </h3>
+                    <div class="journey-item">
+                      <div class="journey-label">نسبة إكمال المنهج</div>
+                      <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="course-progress-fill"></div>
+                      </div>
+                      <div class="journey-percent" id="course-progress-percent">0%</div>
+                    </div>
+                    <div class="journey-item">
+                      <div class="journey-label">الوحدات المنجزة</div>
+                      <div class="journey-value" id="completed-units">0 من 0</div>
+                    </div>
+                    <div class="journey-item">
+                      <div class="journey-label">📚 بحاجة إلى مراجعة (حسب الامتحانات)</div>
+                      <div class="journey-weaknesses" id="weaknesses-list">لا توجد بيانات كافية</div>
+                    </div>
+                  </div>
+
+                  <!-- ==== بطاقة: تحليل الأداء الدراسي (Performance Analysis) جديدة ==== -->
+                  <div class="user-detail-card">
+                    <h3 class="detail-card-title">
+                      <i class="fas fa-chart-line" aria-hidden="true"></i>
+                      تحليل الأداء الدراسي
+                    </h3>
+                    <div class="performance-strengths">
+                      <div class="performance-title">💪 نقاط القوة</div>
+                      <div class="performance-items" id="strengths-list">--</div>
+                    </div>
+                    <div class="performance-weaknesses">
+                      <div class="performance-title">⚠️ نقاط تحتاج مراجعة</div>
+                      <div class="performance-items" id="performance-weaknesses-list">--</div>
+                    </div>
+                  </div>
+
+                  <!-- ==== بطاقة: الإعدادات (خاصة) ==== -->
+                  <div class="user-detail-card private-section">
+                    <h3 class="detail-card-title">
+                      <i class="fas fa-cogs" aria-hidden="true"></i>
+                      الإعدادات
+                    </h3>
+
+                    <!-- ==== خيار: الوضع الليلي ==== -->
+                    <div class="settings-option">
+                      <label class="settings-label" for="theme-toggle-profile">
+                        <i class="fas fa-moon settings-icon" aria-hidden="true"></i>
+                        <span>الوضع الليلي</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" id="theme-toggle-profile">
+                        <span class="slider round"></span>
+                      </label>
+                    </div>
+
+                    <!-- ==== خيار: الإشعارات ==== -->
+                    <div class="settings-option">
+                      <label class="settings-label" for="notifications-toggle">
+                        <i class="fas fa-bell settings-icon" aria-hidden="true"></i>
+                        <span>الإشعارات</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" id="notifications-toggle" checked>
+                        <span class="slider round"></span>
+                      </label>
+                    </div>
+
+                    <!-- ==== اختيار الثيم اللوني ==== -->
+                    <div class="settings-option settings-option-column">
+                      <span class="settings-label">
+                        <i class="fas fa-palette settings-icon" aria-hidden="true"></i>
+                        <span>الثيم اللوني</span>
+                      </span>
+                      <div class="color-theme-picker" id="color-theme-picker" role="radiogroup" aria-label="اختر الثيم اللوني">
+                        <button type="button" class="color-theme-btn" data-color-theme="blue" aria-label="الأزرق السماوي" title="الأزرق السماوي">
+                          <span class="color-swatch color-swatch-blue"></span>
+                        </button>
+                        <button type="button" class="color-theme-btn" data-color-theme="pink" aria-label="الوردي" title="الوردي">
+                          <span class="color-swatch color-swatch-pink"></span>
+                        </button>
+                        <button type="button" class="color-theme-btn" data-color-theme="green" aria-label="الأخضر" title="الأخضر">
+                          <span class="color-swatch color-swatch-green"></span>
+                        </button>
+                        <button type="button" class="color-theme-btn" data-color-theme="purple" aria-label="البنفسجي" title="البنفسجي">
+                          <span class="color-swatch color-swatch-purple"></span>
+                        </button>
+                        <button type="button" class="color-theme-btn" data-color-theme="orange" aria-label="البرتقالي" title="البرتقالي">
+                          <span class="color-swatch color-swatch-orange"></span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="settings-divider"></div>
+
+                    <!-- ==== زر: تعديل الملف ==== -->
+                    <div class="settings-option">
+                      <button type="button" class="btn btn-outline settings-btn full-width" data-action="edit-profile">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
+                        تعديل الملف الشخصي
+                      </button>
+                    </div>
+
+                    <!-- ==== زر: تغيير كلمة المرور ==== -->
+                    <div class="settings-option">
+                      <button type="button" class="btn btn-outline settings-btn full-width" data-action="change-password">
+                        <i class="fas fa-lock" aria-hidden="true"></i>
+                        تغيير كلمة المرور
+                      </button>
+                    </div>
+
+                    <!-- ==== زر: تسجيل الخروج ==== -->
+                    <div class="settings-option">
+                      <button type="button" class="btn btn-warning settings-btn full-width" data-action="logout">
+                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                        تسجيل الخروج
+                      </button>
+                    </div>
+
+                    <!-- ==== زر: حذف الحساب ==== -->
+                    <div class="settings-option">
+                      <button type="button" class="btn btn-danger settings-btn full-width" data-action="delete-account">
+                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                        حذف الحساب نهائياً
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- ===== لوحة إحصائيات التدريس (معلم/مشرف فقط) ===== -->
+                  <!-- ملاحظة معمارية: لا يربط مخطط البيانات الحالي الدروس/الامتحانات
+                       بمعرّف المعلم الذي أنشأها، لذا تُعرض أرقام المنصة الإجمالية
+                       الحقيقية فقط، ولا يوجد نظام تقييم على مستوى المعلم (حُذف). -->
+                  <div class="user-detail-card teacher-moderator-only" id="teacher-stats-card" hidden>
+                    <h3 class="detail-card-title">
+                      <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>
+                      نظرة عامة على المنصة
+                    </h3>
+                    <div class="teacher-stats-grid">
+                      <div class="teacher-stat">
+                        <div class="teacher-stat-value" id="teacher-students-count">--</div>
+                        <div class="teacher-stat-label">إجمالي الطلاب</div>
+                      </div>
+                      <div class="teacher-stat">
+                        <div class="teacher-stat-value" id="teacher-lessons-count">--</div>
+                        <div class="teacher-stat-label">إجمالي الدروس</div>
+                      </div>
+                      <div class="teacher-stat">
+                        <div class="teacher-stat-value" id="teacher-exams-count">--</div>
+                        <div class="teacher-stat-label">إجمالي الامتحانات</div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div> <!-- نهاية user-details-grid -->
+              </div> <!-- نهاية logged-user-content -->
+            </div> <!-- نهاية tab-inner -->
+          </div> <!-- نهاية تبويب الملف الشخصي -->
+
+          <!-- ================= تبويب: الدروس المفضلة ================= -->
+          <div class="tab-content" id="tab-content-favorites" data-tab-content="favorites" role="tabpanel" hidden>
+            <div class="tab-inner">
+              <div class="section-header">
+                <h2 class="section-title">
+                  <i class="fas fa-star favorites-icon" aria-hidden="true"></i>
+                  الدروس المحفوظة
+                </h2>
+                <p class="section-subtitle">دروسك المفضلة التي حفظتها للمراجعة السريعة</p>
+              </div>
+              <!-- ==== مؤشر تحميل المفضلة ==== -->
+              <div class="loading-indicator favorites-loading" id="favorites-loading" hidden>
+                <div class="spinner-small"></div>
+                <span>جاري تحميل المفضلة...</span>
+              </div>
+              <div class="favorites-empty" id="favorites-empty">
+                <div class="empty-icon" aria-hidden="true">
+                  <i class="fas fa-star"></i>
+                </div>
+                <h3>لا توجد دروس محفوظة</h3>
+                <p>ابدأ بإضافة الدروس المفضلة بالضغط على زر النجمة في صفحة الدرس</p>
+                <button type="button" class="btn btn-primary" data-action="explore-lessons">
+                  <i class="fas fa-book" aria-hidden="true"></i>
+                  استكشف الدروس
+                </button>
+              </div>
+              <div class="favorites-grid" id="favorites-grid" hidden></div>
+            </div>
+          </div>
+
+          <!-- ================= تبويب: الإنجازات والميداليات ================= -->
+          <div class="tab-content" id="tab-content-achievements" data-tab-content="achievements" role="tabpanel" hidden>
+            <div class="tab-inner">
+              <div class="section-header">
+                <h2 class="section-title">
+                  <i class="fas fa-trophy achievements-icon" aria-hidden="true"></i>
+                  الإنجازات والميداليات
+                </h2>
+                <p class="section-subtitle">المكافآت والشارات والميداليات التي حصلت عليها</p>
+              </div>
+              <!-- ==== مؤشر تحميل الإنجازات ==== -->
+              <div class="loading-indicator achievements-loading" id="achievements-loading" hidden>
+                <div class="spinner-small"></div>
+                <span>جاري تحميل الإنجازات...</span>
+              </div>
+
+              <!-- ==== بطاقة Streak البصرية ==== -->
+              <div class="streak-achievement-card" id="streak-achievement-card" hidden>
+                <div class="streak-card-header">
+                  <span class="streak-fire-big" aria-hidden="true">🔥</span>
+                  <div class="streak-card-info">
+                    <h3 class="streak-card-title">الاستمرارية اليومية</h3>
+                    <p class="streak-card-desc">استمر في الدخول يومياً للحفاظ على سلسلتك!</p>
+                  </div>
+                </div>
+                <div class="streak-card-count">
+                  <span class="streak-big-number" id="streak-achievement-count">0</span>
+                  <span class="streak-big-label">يوم متتالي</span>
+                </div>
+                <div class="streak-card-bar">
+                  <div class="streak-bar-fill" id="streak-bar-fill"></div>
+                </div>
+                <p class="streak-card-note" id="streak-card-note">استمر في زيارة المنصة يومياً!</p>
+              </div>
+
+              <!-- ==== قسم الميداليات (باستخدام Sprite Sheet medals.png) ==== -->
+              <div class="medals-section" id="medals-section" hidden>
+                <h3 class="medals-section-title">
+                  <i class="fas fa-medal" aria-hidden="true"></i>
+                  الميداليات
+                </h3>
+                <div class="medals-grid" id="medals-grid">
+                  <!-- سيتم إنشاء كل ميدالية كـ div مع background-position من medals.png -->
+                </div>
+              </div>
+
+              <!-- ==== قسم الشارات ==== -->
+              <div class="badges-section" id="badges-section">
+                <h3 class="badges-section-title">
+                  <i class="fas fa-award" aria-hidden="true"></i>
+                  الشارات
+                </h3>
+                <div class="badges-grid" id="badges-grid"></div>
+              </div>
+
+              <!-- ==== حالة فارغة ==== -->
+              <div class="achievements-empty" id="achievements-empty">
+                <div class="empty-icon" aria-hidden="true">
+                  <i class="fas fa-trophy"></i>
+                </div>
+                <h3>لا توجد إنجازات حتى الآن</h3>
+                <p>ابدأ في التعلم واختبر نفسك في الامتحانات لتحصل على شارات وميداليات</p>
+                <button type="button" class="btn btn-primary" data-action="start-learning">
+                  <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                  ابدأ رحلتك التعليمية
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= تبويب: النشاط الأخير ================= -->
+          <div class="tab-content" id="tab-content-activity" data-tab-content="activity" role="tabpanel" hidden>
+            <div class="tab-inner">
+              <div class="section-header">
+                <h2 class="section-title">
+                  <i class="fas fa-history activity-icon" aria-hidden="true"></i>
+                  النشاط الأخير
+                </h2>
+                <p class="section-subtitle">سجل نشاطاتك التعليمية خلال الأسابيع الماضية</p>
+              </div>
+              <!-- ==== مؤشر تحميل النشاط ==== -->
+              <div class="loading-indicator activity-loading" id="activity-loading" hidden>
+                <div class="spinner-small"></div>
+                <span>جاري تحميل النشاط...</span>
+              </div>
+              <div class="activity-empty" id="activity-empty">
+                <div class="empty-icon" aria-hidden="true">
+                  <i class="fas fa-history"></i>
+                </div>
+                <h3>لا يوجد نشاط حتى الآن</h3>
+                <p>ابدأ في استخدام المنصة وسيتم تسجيل جميع أنشطتك هنا</p>
+                <button type="button" class="btn btn-primary" data-action="go-home">
+                  <i class="fas fa-play" aria-hidden="true"></i>
+                  ابدأ الآن
+                </button>
+              </div>
+              <div class="activity-list" id="activity-list" hidden></div>
+              <!-- ==== زر تحميل المزيد (Pagination) ==== -->
+              <div class="load-more-container" id="load-more-activities-container" hidden>
+                <button type="button" class="btn btn-outline load-more-btn" id="load-more-activities-btn">تحميل المزيد من الأنشطة</button>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- نهاية tabs-body -->
+      </div> <!-- نهاية tabs-wrapper -->
+    </div> <!-- نهاية container -->
+  </section>
+</div>

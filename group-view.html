@@ -1,0 +1,154 @@
+<!-- ==== صفحة عرض المجموعة ==== -->
+<div class="page-content group-view-page" data-page="group-view">
+  <h1 class="visually-hidden">عرض المجموعة - منصة بيولوجست</h1>
+
+  <!-- ==== التنقل التفصيلي ==== -->
+  <nav class="breadcrumb-nav" aria-label="مسار التنقل">
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item"><a href="#" class="breadcrumb-link" data-nav-target="home" aria-label="الرئيسية"><i class="fas fa-home"></i></a></li>
+      <li class="breadcrumb-item"><a href="#" class="breadcrumb-link" data-nav-target="groups" aria-label="المجموعات">المجموعات</a></li>
+      <li class="breadcrumb-item active" aria-current="page" id="group-breadcrumb">جاري التحميل...</li>
+    </ol>
+  </nav>
+
+  <!-- ==== حالة التحميل ==== -->
+  <div class="loading-state" aria-live="polite">
+    <div class="loading-spinner">
+      <div class="spinner-circle"></div>
+    </div>
+    <p class="loading-text">جاري تحميل بيانات المجموعة...</p>
+  </div>
+
+  <!-- ==== محتوى المجموعة ==== -->
+  <div class="group-container" style="display: none;">
+    <!-- ==== رأس المجموعة ==== -->
+    <div class="group-header">
+      <div class="group-info">
+        <h2 class="group-name" id="group-name"></h2>
+        <p class="group-description" id="group-description"></p>
+        <div class="group-meta">
+          <span class="group-creator"><i class="fas fa-user-cog"></i> <span id="group-creator"></span></span>
+          <span class="group-members-count"><i class="fas fa-users"></i> <span id="members-count">0</span> عضو</span>
+        </div>
+      </div>
+      <div class="group-actions">
+        <!-- ==== أزرار التحكم (تظهر حسب الصلاحية) ==== -->
+        <button class="btn btn-outline" id="add-members-btn" style="display: none;">
+          <i class="fas fa-user-plus"></i> إضافة أعضاء
+        </button>
+        <button class="btn btn-danger" id="leave-group-btn" style="display: none;">
+          <i class="fas fa-sign-out-alt"></i> مغادرة المجموعة
+        </button>
+        <button class="btn btn-danger" id="delete-group-btn" style="display: none;">
+          <i class="fas fa-trash-alt"></i> حذف المجموعة
+        </button>
+      </div>
+    </div>
+
+    <!-- ==== تبويبات المجموعة ==== -->
+    <div class="group-tabs">
+      <button class="tab-btn active" data-tab="chat">المحادثة</button>
+      <button class="tab-btn" data-tab="lessons">الدروس المخصصة</button>
+      <button class="tab-btn" data-tab="exams">الامتحانات المخصصة</button>
+      <button class="tab-btn" data-tab="members">الأعضاء</button>
+    </div>
+
+    <!-- ==== تبويب المحادثة ==== -->
+    <div class="tab-content active" data-tab-content="chat">
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+          <!-- يتم ملؤها بالرسائل ديناميكيًا -->
+        </div>
+        <div class="chat-input-container">
+          <textarea id="chat-input" class="chat-input" placeholder="اكتب رسالتك..." rows="2"></textarea>
+          <button id="send-message-btn" class="btn btn-primary send-btn">
+            <i class="fas fa-paper-plane"></i> إرسال
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==== تبويب الدروس المخصصة ==== -->
+    <div class="tab-content" data-tab-content="lessons" style="display: none;">
+      <div class="custom-lessons-container">
+        <div class="section-header">
+          <h3>دروس المجموعة</h3>
+          <button class="btn btn-sm btn-primary add-lesson-to-group-btn" style="display: none;">
+            <i class="fas fa-plus"></i> إضافة درس
+          </button>
+        </div>
+        <div class="lessons-grid" id="group-lessons-grid">
+          <!-- يتم عرض الدروس هنا -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ==== تبويب الامتحانات المخصصة ==== -->
+    <div class="tab-content" data-tab-content="exams" style="display: none;">
+      <div class="custom-exams-container">
+        <div class="section-header">
+          <h3>امتحانات المجموعة</h3>
+          <button class="btn btn-sm btn-primary add-exam-to-group-btn" style="display: none;">
+            <i class="fas fa-plus"></i> إضافة امتحان
+          </button>
+        </div>
+        <div class="exams-grid" id="group-exams-grid">
+          <!-- يتم عرض الامتحانات هنا -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ==== تبويب الأعضاء ==== -->
+    <div class="tab-content" data-tab-content="members" style="display: none;">
+      <div class="members-container">
+        <div class="members-list" id="members-list">
+          <!-- يتم عرض الأعضاء هنا -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==== مودال إضافة أعضاء ==== -->
+  <div id="add-members-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>إضافة أعضاء جدد</h3>
+        <button class="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="add-member-search">بحث عن مستخدم</label>
+          <input type="text" id="add-member-search" class="form-control" placeholder="رقم الهاتف أو اسم المستخدم">
+          <div id="add-member-suggestions" class="suggestions-list"></div>
+        </div>
+        <div id="new-members-list" class="selected-members"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary modal-cancel">إلغاء</button>
+        <button class="btn btn-primary" id="confirm-add-members">إضافة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==== مودال إضافة درس / امتحان للمجموعة ==== -->
+  <div id="add-content-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="add-content-title">إضافة محتوى</h3>
+        <button class="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="content-search">البحث</label>
+          <input type="text" id="content-search" class="form-control" placeholder="ابحث عن درس أو امتحان...">
+          <div id="content-suggestions" class="suggestions-list"></div>
+        </div>
+        <div id="selected-content-list" class="selected-content"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary modal-cancel">إلغاء</button>
+        <button class="btn btn-primary" id="confirm-add-content">إضافة</button>
+      </div>
+    </div>
+  </div>
+</div>

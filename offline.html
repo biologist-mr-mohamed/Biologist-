@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2196F3">
+  <title>غير متصل - بيولوجست</title>
+  <link rel="icon" href="assets/images/biologist.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/images/biologist.png">
+  <!-- 🛠️ إصلاح حرج: هذا الملف كان يستخدم كلاسات (.offline-container, .btn, ...)
+       دون أي CSS مرتبط به على الإطلاق (لا <link> ولا <style>)، فكانت الصفحة تظهر
+       بدون أي تنسيق عند فقد الاتصال. الأنماط هنا مضمَّنة (inline) عمداً — وليست
+       ملف CSS خارجي — لأن صفحة offline.html يجب أن تعمل بشكل مستقل تماماً حتى لو
+       فشل جلب أي مورد خارجي أثناء انقطاع الاتصال الفعلي. -->
+  <style>
+    :root {
+      --primary: #2196F3;
+      --primary-dark: #1769aa;
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #6b7280;
+      --success: #2e7d32;
+      --danger: #c62828;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      font-family: 'Cairo', 'Tahoma', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      padding-top: calc(24px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      text-align: center;
+    }
+    .offline-container {
+      max-width: 420px;
+      width: 100%;
+    }
+    .logo-wrapper { margin-bottom: 16px; }
+    .logo { border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+    .sub { color: var(--muted); margin-bottom: 22px; font-size: .95rem; }
+    .icon-status { font-size: 2.5rem; margin-bottom: 18px; }
+    .message {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 22px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+      line-height: 1.8;
+      font-size: .95rem;
+    }
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .2s ease, transform .1s ease;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .btn:active { transform: scale(.97); }
+    .helper-text {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: .85rem;
+      line-height: 1.9;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 20px;
+      background: #eef2ff;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: .85rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212;
+        --card: #1e1e1e;
+        --text: #f1f1f1;
+        --muted: #9aa0a6;
+      }
+      .message { box-shadow: 0 2px 12px rgba(0,0,0,.4); }
+      .status-badge { background: #1a2438; }
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container" role="main" aria-label="صفحة عدم الاتصال">
+    <div class="logo-wrapper">
+      <img src="assets/images/biologist.png" alt="شعار بيولوجست" class="logo" width="85" height="85" loading="eager">
+    </div>
+    <h1>🌐 أنت غير متصل</h1>
+    <div class="sub">منصة بيولوجست التعليمية</div>
+
+    <div class="icon-status">
+      📡
+    </div>
+
+    <div class="message" id="offline-message">
+      ⚠️ يبدو أن اتصالك بالإنترنت قد انقطع.<br> 
+      تحقق من شبكة الواي فاي أو بيانات الجوال ثم حاول مرة أخرى.
+    </div>
+
+    <button class="btn" id="retryBtn">
+      <span>⟳</span> إعادة المحاولة
+    </button>
+
+    <div class="helper-text">
+      <span class="status-badge" id="connectionStatus">📶 جاري التحقق...</span><br>
+      ✨ يمكنك تصفح الدروس والامتحانات التي قمت بتحميلها مسبقاً عند عودة الاتصال.
+    </div>
+  </div>
+
+  <script>
+    // ==== مراقبة حالة الاتصال وتحديث الواجهة ====
+    (function() {
+      const statusSpan = document.getElementById('connectionStatus');
+      const messageDiv = document.getElementById('offline-message');
+      const retryBtn = document.getElementById('retryBtn');
+
+      function updateUI(isOnline) {
+        if (isOnline) {
+          if (statusSpan) statusSpan.innerHTML = '✅ الاتصال متاح • جاري إعادة التوجيه...';
+          if (messageDiv) messageDiv.innerHTML = '🔄 تم استعادة الاتصال! سيتم نقلك إلى المنصة خلال لحظات.';
+          // بعد ثانية ونصف نعيد التوجيه إلى الصفحة الرئيسية أو آخر صفحة
+          setTimeout(() => {
+            // محاولة استرجاع المسار المحفوظ
+            let redirectUrl = '/';
+            try {
+              const lastRoute = sessionStorage.getItem('biologist_intended_route');
+              if (lastRoute) {
+                const parsed = JSON.parse(lastRoute);
+                if (parsed && parsed.name) {
+                  // نحتاج إلى بناء المسار الصحيح (لأننا خارج SPA نستخدم location)
+                  if (parsed.name === 'home') redirectUrl = '/';
+                  else if (parsed.name === 'lessons') redirectUrl = '/lessons';
+                  else if (parsed.name === 'exams') redirectUrl = '/exams';
+                  else if (parsed.name === 'profile') redirectUrl = '/profile';
+                  else redirectUrl = '/';
+                }
+              }
+            } catch(e) {}
+            window.location.href = redirectUrl;
+          }, 1500);
+        } else {
+          if (statusSpan) statusSpan.innerHTML = '⚠️ غير متصل • حاول مرة أخرى';
+          if (messageDiv) messageDiv.innerHTML = '⚠️ يبدو أن اتصالك بالإنترنت قد انقطع.<br> تحقق من الشبكة ثم اضغط "إعادة المحاولة".';
+        }
+      }
+
+      function checkAndUpdate() {
+        const isOnline = navigator.onLine;
+        updateUI(isOnline);
+      }
+
+      // إعادة المحاولة اليدوية
+      retryBtn.addEventListener('click', () => {
+        if (navigator.onLine) {
+          window.location.reload();
+        } else {
+          // محاولة عرض رسالة إضافية
+          if (messageDiv) messageDiv.innerHTML = '❌ لا يزال الجهاز غير متصل. تأكد من تفعيل الإنترنت ثم حاول مجدداً.';
+          setTimeout(() => {
+            if (messageDiv && !navigator.onLine) messageDiv.innerHTML = '⚠️ يبدو أن اتصالك بالإنترنت قد انقطع.<br> تحقق من الشبكة ثم اضغط "إعادة المحاولة".';
+          }, 2500);
+        }
+      });
+
+      // مراقبة الأحداث
+      window.addEventListener('online', () => {
+        checkAndUpdate();
+      });
+      window.addEventListener('offline', checkAndUpdate);
+
+      // الفحص الأولي
+      checkAndUpdate();
+
+      // حفظ المسار الحالي للمستخدم (قبل فقد الاتصال) - اختياري
+      if (!sessionStorage.getItem('biologist_intended_route') && document.referrer) {
+        try {
+          const url = new URL(document.referrer);
+          let routeName = 'home';
+          if (url.pathname.includes('/lessons')) routeName = 'lessons';
+          else if (url.pathname.includes('/exams')) routeName = 'exams';
+          else if (url.pathname.includes('/profile')) routeName = 'profile';
+          sessionStorage.setItem('biologist_intended_route', JSON.stringify({ name: routeName }));
+        } catch(e) {}
+      }
+    })();
+  </script>
+</body>
+</html>

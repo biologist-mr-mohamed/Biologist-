@@ -1,0 +1,111 @@
+<!-- views/exams/exams.html -->
+<div class="page-content exams-page" data-page="exams">
+  <h1 class="visually-hidden">الامتحانات التعليمية - منصة بيولوجست</h1>
+
+  <!-- مسار التنقل -->
+  <nav class="breadcrumb-nav" aria-label="مسار التنقل">
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item"><a href="#" class="breadcrumb-link" data-nav-target="home"><i class="fas fa-home"></i></a></li>
+      <li class="breadcrumb-item active" aria-current="page">الامتحانات</li>
+    </ol>
+  </nav>
+
+  <!-- الهيدر -->
+  <header class="exams-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="header-title">
+          <h2 class="page-title">
+            <i class="fas fa-graduation-cap title-icon"></i>
+            <span>الامتحانات المتاحة</span>
+          </h2>
+          <p class="page-subtitle" id="exams-subtitle">جاري تحميل الامتحانات حسب مرحلتك الدراسية...</p>
+        </div>
+        <!-- زر إضافة امتحان جديد (للمعلم والمشرف) -->
+        <div class="header-actions teacher-actions" style="display: none;">
+          <button class="btn btn-primary add-exam-btn" data-action="add-exam">
+            <i class="fas fa-plus"></i>
+            <span>امتحان جديد</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- حالة التحميل -->
+  <div class="loading-state">
+    <div class="loading-spinner">
+      <div class="spinner-circle"></div>
+    </div>
+    <p class="loading-text">جاري تحميل الامتحانات...</p>
+  </div>
+
+  <!-- ==== التنقل السريع (تظهر للجميع): الكل / الشامل / الوحدات / المكتملة ==== -->
+  <section class="quick-categories exam-quick-categories" aria-labelledby="exam-categories-title">
+    <h2 id="exam-categories-title" class="section-title">تصنيفات سريعة</h2>
+    <div class="categories-container" id="exam-categories-container">
+      <!-- ==== يُملأ ديناميكياً بالكامل من exams.js (الكل / الشامل / وحدة1 / وحدة2 ... / المكتملة) ==== -->
+      <div class="units-loading">
+        <div class="spinner-small"></div>
+        <span>جاري تحميل التصنيفات...</span>
+      </div>
+    </div>
+  </section>
+
+<!-- ==== تصفح المعلم الهرمي ==== -->
+  <section class="quick-categories exam-teacher-categories teacher-filters" aria-labelledby="exam-teacher-tree-title" style="display: none;">
+    <h2 id="exam-teacher-tree-title" class="section-title">تصفح حسب المرحلة والصف</h2>
+    <div class="categories-container" id="exam-teacher-tree-container">
+      <!-- ==== تُملأ ديناميكياً من exams.js (شجرة مرحلة ← صف ← فصل) ==== -->
+    </div>
+  </section>
+
+  <!-- ==== قسم الوحدات والأبواب (Carousel) — نفس مكوّن نظام الدروس ==== -->
+  <section class="units-section" aria-labelledby="exam-units-title">
+    <div class="container">
+      <h2 id="exam-units-title" class="section-title">
+        <i class="fas fa-layer-group"></i> الوحدات والأبواب
+      </h2>
+      <div class="units-carousel" id="exam-units-container">
+        <!-- ==== حالة تحميل الوحدات ==== -->
+        <div class="units-loading">
+          <div class="spinner-small"></div>
+          <span>جاري تحميل الوحدات...</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- شبكة الامتحانات -->
+  <div class="exams-grid container">
+    <!-- سيتم ملؤها ديناميكيًا -->
+  </div>
+
+  <!-- إحصائيات سريعة (للطلاب) -->
+  <section class="stats-summary container" style="display: none;">
+    <h2 class="section-title">ملخص أدائك</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" data-stat="total-exams">0</div>
+          <div class="stat-label">إجمالي الامتحانات</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" data-stat="completed-exams">0</div>
+          <div class="stat-label">مكتمل</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" data-stat="average-score">0%</div>
+          <div class="stat-label">المتوسط</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

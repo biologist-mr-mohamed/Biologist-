@@ -1,0 +1,1636 @@
+/*
+ * 👤 profile.css — تنسيقات صفحة الملف الشخصي المتكامل v5.0.0
+ * ============================================================================
+ * 📝 المسؤولية:
+ *    التنسيق الكامل لعناصر profile.html الخاصة بهذه الصفحة فقط (Header,
+ *    الإحصائيات، التبويبات، الإعدادات، الإنجازات، المفضلة، النشاط، منتقي
+ *    الوظيفة/الأفاتار). يعتمد حصرياً على متغيرات variables.css، ولا يُعيد
+ *    تعريف أي مكوّن عام معرّف مسبقاً في components.css (الأزرار، الكروت،
+ *    التبويبات، شريط التقدم، الأفاتار، الميداليات، حقول النماذج) — هذه
+ *    المكوّنات تُستخدم كما هي من الملف العام، وهذا الملف فقط يضيف تخطيط
+ *    الصفحة والعناصر الجديدة غير المعرّفة سابقاً في أي مكان آخر.
+ *
+ * 🔗 التكامل:
+ *    - الأفاتار بالكامل من نظام avatar.js + قسم 13 في components.css
+ *      (.avatar-wrapper--xl / .avatar-frame--* / .avatar-image / إلخ) —
+ *      هذا الملف لا يلمس هذه الكلاسات إطلاقاً، فقط يضبط حاويتها الخارجية
+ *      profile-avatar-wrapper وحجمها داخل سياق الصفحة.
+ *    - الوضع الليلي: نعتمد أساساً على متغيرات -light (تتغيّر قيمتها تلقائياً
+ *      تحت [data-theme="dark"] في variables.css)، ونضيف قسم "الوضع الليلي"
+ *      في نهاية الملف فقط لما يحتاج معالجة إضافية (ظلال، تدرجات، صور).
+ *    - RTL: عبر خصائص منطقية (margin-inline-*, inset-inline-*) في كل الملف،
+ *      بدون الاعتماد على [dir="rtl"] إلا في حالات نادرة جداً.
+ *
+ * 🛠️ ملاحظة هامة (راجع تقرير المراجعة):
+ *    - profile.js يقرأ عبر getComputedStyle الاسمين --text-primary
+ *      و --bg-card لرسم دائرة التقدم (Canvas)، وهما غير معرّفين في
+ *      variables.css أصلاً (الأسماء الفعلية: --text-primary-light و
+ *      --surface-light). تم ربطهما هنا كـ alias حتى تعمل ألوان الرسم
+ *      البياني صح مع الثيمات كلها دون الحاجة لتعديل profile.js.
+ * ============================================================================
+ */
+
+
+/* ==== 00 · متغيرات alias لسد الفجوة بين profile.js ونظام المتغيرات ==== */
+:root {
+  /* يقرأها updateProfileChart() في profile.js عبر getComputedStyle */
+  --text-primary: var(--text-primary-light);
+  --bg-card:      var(--surface-light);
+}
+
+
+/* ==== 01 · حاوية الصفحة وحالة التحميل العامة ==== */
+
+.profile-page {
+  display: block;
+  min-height: 60vh;
+}
+
+.profile-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-24) var(--space-4);
+  text-align: center;
+}
+
+.profile-loading-state .loading-spinner {
+  width: 52px;
+  height: 52px;
+}
+
+.spinner-circle {
+  width: 100%;
+  height: 100%;
+  border: 4px solid var(--border-color-light);
+  border-top-color: var(--primary);
+  border-radius: var(--border-radius-full);
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  color: var(--text-secondary-light);
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+/* — مؤشر تحميل مصغّر (داخل التبويبات) — */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  color: var(--text-secondary-light);
+}
+
+.spinner-small {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 3px solid var(--border-color-light);
+  border-top-color: var(--primary);
+  border-radius: var(--border-radius-full);
+  animation: spin 0.7s linear infinite;
+}
+
+/* — مؤشر تحميل داخل شبكة المحتوى نفسها (المفضلة/النشاط أثناء الجلب) — */
+.favorites-placeholder,
+.activity-placeholder {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-4);
+  color: var(--text-secondary-light);
+  text-align: center;
+}
+
+.placeholder-spinner {
+  width: 36px;
+  height: 36px;
+}
+
+.placeholder-spinner .spinner-circle {
+  border-width: 3px;
+}
+
+.activity-placeholder .placeholder-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-color-light);
+  border-top-color: var(--primary);
+  border-radius: var(--border-radius-full);
+  animation: spin 0.8s linear infinite;
+}
+
+
+/* ==== 02 · هيدر الملف الشخصي ==== */
+
+.profile-header-section {
+  padding-block: var(--space-8) var(--space-6);
+}
+
+.profile-header {
+  background: linear-gradient(160deg, var(--surface-light), rgba(var(--primary-rgb), 0.04));
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--card-shadow);
+  padding: var(--space-8) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  animation: fadeIn var(--transition-normal) both;
+}
+
+/* — كتلة الهوية (أفاتار + معلومات) — */
+.profile-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* حجم مصغّر مخصص لسياق الهيدر فقط — لا يمس .avatar-wrapper--xl في أي مكان آخر */
+  --aw-size: 148px;
+  --aw-border: 4px;
+}
+
+/* الشارة القديمة (verification-badge) يتم إخفاؤها من profile.js لصالح
+   الشارة الموحّدة من avatar.js — لا حاجة لتنسيقها، تبقى hidden دوماً. */
+
+/* — زر تغيير الوظيفة العائم فوق الأفاتار (تُنشئه profile.js ديناميكياً) — */
+.change-avatar-btn {
+  position: absolute;
+  inset-inline-end: -2px;
+  inset-block-end: -2px;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--border-radius-full);
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  color: #fff;
+  border: 3px solid var(--surface-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-fast);
+  z-index: 2;
+}
+
+.change-avatar-btn:hover {
+  transform: scale(1.08);
+  box-shadow: var(--shadow-lg);
+}
+
+.change-avatar-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.change-avatar-btn i {
+  pointer-events: none;
+}
+
+/* — معلومات الهوية النصية — */
+.profile-identity-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-name {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  color: var(--text-primary-light);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.profile-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.profile-user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--border-radius-full);
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(var(--primary-rgb), 0.3);
+}
+
+.profile-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.profile-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.profile-meta-item i {
+  color: var(--primary);
+  font-size: var(--font-size-base);
+}
+
+/* — بطاقة الـ Streak المصغّرة بجانب المعلومات — */
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  padding: var(--space-2) var(--space-4);
+  margin-top: var(--space-1);
+  border-radius: var(--border-radius-full);
+  background: linear-gradient(45deg, rgba(255, 152, 0, 0.15), rgba(255, 87, 34, 0.15));
+  border: 1px solid rgba(255, 152, 0, 0.35);
+}
+
+.streak-fire-icon {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.streak-count {
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  color: #e65100;
+}
+
+.streak-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary-light);
+}
+
+
+/* ==== 03 · شبكة الإحصائيات السريعة ==== */
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-4);
+}
+
+/* تعديل سياقي على .stat-card العام: هنا نريد أيقونة أعلى القيمة بدل
+   الشكل الأفقي (أيقونة + محتوى) المستخدم في صفحات أخرى — بدون لمس
+   القاعدة العامة لـ .stat-card في components.css */
+.profile-stats-grid .stat-card {
+  flex-direction: column;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-3);
+}
+
+.profile-stats-grid .stat-icon {
+  width: 48px;
+  height: 48px;
+  font-size: var(--font-size-xl);
+}
+
+.profile-stats-grid .stat-value {
+  font-size: var(--font-size-xl);
+  margin-bottom: 0;
+}
+
+.profile-stats-grid .stat-label {
+  font-size: var(--font-size-xs);
+}
+
+
+/* ==== 04 · شريط التقدم العام ==== */
+
+.profile-progress-bar-section {
+  margin-top: var(--space-2);
+}
+
+.progress-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.progress-label-text {
+  font-weight: 600;
+  color: var(--text-primary-light);
+}
+
+.progress-percentage-text {
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.profile-progress-bar-section .progress-bar-container {
+  height: 10px;
+}
+
+
+/* ==== 05 · قسم التبويبات — الحاوية الخارجية فقط ==== */
+/* .tabs-header / .tab-btn / .tab-content معرّفة بالكامل في components.css */
+
+.profile-tabs-section {
+  padding-bottom: var(--space-12);
+}
+
+.tabs-wrapper {
+  background-color: var(--surface-light);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.tabs-body {
+  padding: var(--space-6);
+}
+
+.tab-inner {
+  animation: contentFadeIn 0.35s ease-out;
+}
+
+/* — عداد صغير داخل زر التبويب (المفضلة/الإنجازات) — */
+.tab-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--space-1);
+  border-radius: var(--border-radius-full);
+  background-color: var(--background-light);
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  transition: var(--comp-transition-fast);
+}
+
+.tab-btn.active .tab-count-badge,
+.tab-btn[aria-selected="true"] .tab-count-badge {
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  color: #fff;
+}
+
+@media (max-width: 767.98px) {
+  .tabs-body {
+    padding: var(--space-4);
+  }
+}
+
+
+/* ==== 06 · رسالة الضيف ==== */
+
+.guest-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-16) var(--space-4);
+}
+
+.guest-icon {
+  width: 84px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-full);
+  background: linear-gradient(45deg, rgba(var(--primary-rgb), 0.12), rgba(var(--accent-rgb), 0.12));
+  color: var(--primary);
+  font-size: var(--font-size-4xl);
+  margin-bottom: var(--space-2);
+}
+
+.guest-message h2 {
+  margin-bottom: 0;
+}
+
+.guest-message p {
+  color: var(--text-secondary-light);
+  max-width: 420px;
+  margin-bottom: var(--space-2);
+}
+
+.guest-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+
+/* ==== 07 · شبكة تفاصيل المستخدم (تبويب الملف الشخصي) ==== */
+
+.logged-user-content {
+  animation: fadeIn var(--transition-normal) both;
+}
+
+.user-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.user-detail-card {
+  background-color: var(--background-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-5);
+  animation: cardAppear 0.35s ease-out both;
+}
+
+.detail-card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-4);
+}
+
+.detail-card-title i {
+  color: var(--primary);
+  font-size: var(--font-size-base);
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  color: var(--text-primary-light);
+  font-weight: 600;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+.detail-badge {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--border-radius-full);
+  background-color: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+  font-size: var(--font-size-sm);
+}
+
+.detail-username {
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* — شريط تقدم المستوى المصغّر — */
+.level-progress-container {
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+/* مُعدِّل حجم عام لأي شريط تقدم مصغّر (مستخدم هنا لمستوى المستخدم) —
+   غير مقيّد بـ .level-progress-container عمداً ليكون قابلاً لإعادة
+   الاستخدام في أي سياق آخر يحتاج شريط تقدم أنحف */
+.progress-bar-container.small {
+  height: 6px;
+}
+
+.level-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary-light);
+  margin-bottom: var(--space-1);
+}
+
+.level-points-needed {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary-light);
+  text-align: end;
+}
+
+
+/* ==== 08 · بطاقة الإحصائيات المتقدمة (الرسم البياني) ==== */
+
+.stat-chart-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) 0 var(--space-4);
+}
+
+#profile-chart {
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+}
+
+.legend-label {
+  font-weight: 500;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+}
+
+.legend-color-primary {
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+}
+
+.legend-color-muted {
+  background-color: var(--border-color-light);
+}
+
+.exams-summary {
+  margin-top: var(--space-2);
+}
+
+.exams-summary-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-3);
+}
+
+.exams-summary-title i {
+  color: var(--primary);
+}
+
+.exams-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-1) 0;
+  font-size: var(--font-size-sm);
+}
+
+.exams-summary-label {
+  color: var(--text-secondary-light);
+}
+
+.exams-summary-value {
+  font-weight: 700;
+  color: var(--text-primary-light);
+}
+
+
+/* ==== 09 · بطاقة رحلة التعلّم ==== */
+
+.journey-item {
+  margin-bottom: var(--space-4);
+}
+
+.journey-item:last-child {
+  margin-bottom: 0;
+}
+
+.journey-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary-light);
+  margin-bottom: var(--space-2);
+}
+
+.journey-percent {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--primary);
+  text-align: end;
+}
+
+.journey-value {
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  color: var(--text-primary-light);
+}
+
+.journey-weaknesses {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  line-height: 1.6;
+}
+
+
+/* ==== 10 · بطاقة تحليل الأداء الدراسي ==== */
+
+.performance-strengths,
+.performance-weaknesses {
+  margin-bottom: var(--space-4);
+}
+
+.performance-strengths:last-child,
+.performance-weaknesses:last-child {
+  margin-bottom: 0;
+}
+
+.performance-title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-2);
+}
+
+.performance-items {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  line-height: 1.7;
+}
+
+
+/* ==== 11 · بطاقة الإعدادات ==== */
+
+.settings-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.settings-option-column {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+}
+
+.settings-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--text-primary-light);
+  cursor: pointer;
+}
+
+.settings-icon {
+  color: var(--primary);
+  font-size: var(--font-size-lg);
+  width: 22px;
+  text-align: center;
+}
+
+.settings-divider {
+  height: 1px;
+  background-color: var(--border-color-light);
+  margin: var(--space-2) 0;
+}
+
+.settings-btn.full-width {
+  width: 100%;
+  justify-content: center;
+}
+
+/* — مفتاح التبديل (Switch) — */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 26px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.switch .slider {
+  position: absolute;
+  inset: 0;
+  background-color: var(--border-color-light);
+  transition: var(--transition-fast);
+}
+
+.switch .slider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  inset-inline-start: 3px;
+  top: 3px;
+  background-color: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+}
+
+.switch input:checked + .slider {
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+}
+
+/* الموقع الافتراضي inset-inline-start:3px في RTL = 3px من اليمين، فتتحرك
+   الدائرة فعلياً نحو اليسار عند التفعيل — translateX() دائماً فيزيائي
+   وغير متأثر باتجاه الصفحة، بعكس الخصائص المنطقية */
+.switch input:checked + .slider::before {
+  transform: translateX(-20px);
+}
+
+.switch .slider.round {
+  border-radius: var(--border-radius-full);
+}
+
+.switch .slider.round::before {
+  border-radius: 50%;
+}
+
+.switch input:focus-visible + .slider {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* — منتقي الثيم اللوني — */
+.color-theme-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.color-theme-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-full);
+  border: 3px solid transparent;
+  background: none;
+  padding: 3px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.color-theme-btn:hover {
+  transform: scale(1.1);
+}
+
+.color-theme-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.color-theme-btn.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+}
+
+.color-swatch {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--border-radius-full);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.color-swatch-blue   { background: linear-gradient(135deg, #4facfe, #00c6ff); }
+.color-swatch-pink   { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.color-swatch-green  { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.color-swatch-purple { background: linear-gradient(135deg, #764ba2, #667eea); }
+.color-swatch-orange { background: linear-gradient(135deg, #ffb75e, #ed8f03); }
+
+
+/* ==== 12 · لوحة إحصائيات التدريس (معلم/مشرف) ==== */
+
+.teacher-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.teacher-stat {
+  padding: var(--space-3);
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-light);
+}
+
+.teacher-stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.teacher-stat-label {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary-light);
+}
+
+
+/* ==== 13 · تبويب الإنجازات والميداليات ==== */
+
+/* — بطاقة الـ Streak الكبيرة — */
+.streak-achievement-card {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.12), rgba(255, 87, 34, 0.06));
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.streak-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.streak-fire-big {
+  font-size: var(--font-size-5xl);
+  line-height: 1;
+  animation: streakPop 2.4s ease-in-out infinite;
+}
+
+.streak-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.streak-card-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-1);
+}
+
+.streak-card-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  margin-bottom: 0;
+}
+
+.streak-card-count {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.streak-big-number {
+  font-size: var(--font-size-4xl);
+  font-weight: 800;
+  color: #e65100;
+}
+
+.streak-big-label {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary-light);
+  font-weight: 600;
+}
+
+.streak-card-bar {
+  height: 10px;
+  background-color: rgba(255, 152, 0, 0.15);
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-2);
+}
+
+.streak-bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: var(--border-radius-full);
+  background: linear-gradient(to right, #ff9800, #ff5722);
+  transition: width var(--transition-slow) 0.2s;
+}
+
+.streak-card-note {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary-light);
+  margin-bottom: 0;
+}
+
+/* — عنوان قسم الميداليات (تطابق بصري مع .medals-title العامة) — */
+.medals-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  color: var(--text-primary-light);
+}
+
+.medals-section-title i {
+  color: #ffb300;
+}
+
+/* — قسم الشارات (Badges) — */
+.badges-section {
+  margin-top: var(--space-6);
+}
+
+.badges-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  color: var(--text-primary-light);
+}
+
+.badges-section-title i {
+  color: var(--primary);
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--space-4);
+}
+
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-2);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--background-light);
+  border: 1px solid var(--border-color-light);
+  text-align: center;
+  transition: var(--comp-transition-fast);
+  animation: badgeAppear 0.4s ease-out both;
+}
+
+.badge-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow);
+  border-color: transparent;
+}
+
+.badge-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-full);
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  color: #fff;
+  font-size: var(--font-size-xl);
+}
+
+.badge-name {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--text-primary-light);
+}
+
+
+/* ==== 14 · تبويب الدروس المفضلة ==== */
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.favorite-item {
+  height: 100%;
+}
+
+.favorite-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4);
+  transition: var(--comp-transition-normal);
+  animation: cardAppear 0.35s ease-out both;
+}
+
+.favorite-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow);
+}
+
+.favorite-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.favorite-title {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary-light);
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+.favorite-remove-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--border-radius-full);
+  background-color: rgba(var(--error-rgb), 0.1);
+  color: var(--error);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+  transition: var(--comp-transition-fast);
+}
+
+.favorite-remove-btn:hover {
+  background-color: var(--error);
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.favorite-remove-btn:focus-visible {
+  outline: 2px solid var(--error);
+  outline-offset: 2px;
+}
+
+.favorite-desc {
+  flex: 1;
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  margin-bottom: var(--space-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.favorite-actions {
+  margin-top: auto;
+}
+
+.favorite-actions .btn {
+  width: 100%;
+}
+
+
+/* ==== 15 · تبويب النشاط الأخير ==== */
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.activity-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-light);
+  border: 1px solid var(--border-color-light);
+  transition: var(--comp-transition-fast);
+  animation: fadeInUp 0.3s ease-out both;
+}
+
+.activity-card:hover {
+  border-color: var(--primary);
+  transform: translateX(-2px);
+}
+
+[dir="rtl"] .activity-card:hover {
+  transform: translateX(2px);
+}
+
+.activity-item {
+  width: 100%;
+}
+
+/* مقيّد بسياق البطاقة عمداً — نفس اسم الكلاس مستخدم أيضاً كأيقونة تزيينية
+   بسيطة داخل عنوان التبويب (.section-title)، وهو سياق مختلف تماماً
+   (راجع قسم 22 "رؤوس التبويبات") */
+.activity-card .activity-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: var(--font-size-base);
+}
+
+.activity-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.activity-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-time {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary-light);
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-5);
+}
+
+.load-more-btn {
+  min-width: 220px;
+}
+
+
+/* ==== 16 · منتقي الوظيفة (Avatar Job Picker) — داخل مودال ==== */
+
+.avatar-selector-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.avatar-selector-desc {
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.avatar-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-3);
+}
+
+.avatar-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--border-radius-md);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--comp-transition-fast);
+}
+
+.avatar-option:hover {
+  background-color: var(--hover-light);
+}
+
+.avatar-option:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.avatar-option.selected {
+  border-color: var(--primary);
+  background-color: rgba(var(--primary-rgb), 0.08);
+}
+
+.avatar-sprite-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--border-radius-full);
+  background-color: var(--background-light);
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
+}
+
+.avatar-option-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary-light);
+  text-align: center;
+}
+
+.avatar-option.selected .avatar-option-label {
+  color: var(--primary);
+}
+
+@media (max-width: 480px) {
+  .avatar-selector-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+
+/* ==== 17 · نماذج المودالات (تعديل الملف / تغيير كلمة المرور) ==== */
+/* .form-group / .form-label / .form-control معرّفة بالكامل في components.css؛
+   هنا فقط تعديلات تخطيطية بسيطة عند العرض داخل مودال ضيق */
+
+.edit-profile-form .form-group,
+.change-password-form .form-group {
+  margin-bottom: var(--space-4);
+}
+
+.edit-profile-form .form-group:last-child,
+.change-password-form .form-group:last-child {
+  margin-bottom: 0;
+}
+
+
+/* ==== 18 · حالات فارغة / خطأ مشتركة ==== */
+
+.favorites-empty,
+.achievements-empty,
+.activity-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-16) var(--space-4);
+}
+
+.favorites-empty .empty-icon,
+.achievements-empty .empty-icon,
+.activity-empty .empty-icon {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-full);
+  background-color: var(--background-light);
+  color: var(--text-tertiary-light);
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--space-2);
+}
+
+.favorites-empty h3,
+.achievements-empty h3,
+.activity-empty h3 {
+  margin-bottom: 0;
+}
+
+.favorites-empty p,
+.achievements-empty p,
+.activity-empty p {
+  color: var(--text-secondary-light);
+  max-width: 380px;
+  margin-bottom: var(--space-2);
+}
+
+/* — حالة خطأ عامة (المفضلة / النشاط) — */
+.error-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-4);
+  color: var(--text-secondary-light);
+}
+
+.error-state i {
+  font-size: var(--font-size-3xl);
+  color: var(--warning);
+}
+
+.error-state p {
+  margin-bottom: 0;
+}
+
+.text-muted {
+  color: var(--text-tertiary-light);
+  text-align: center;
+  padding: var(--space-6) 0;
+}
+
+
+/* ==== 19 · متغيّر زر جديد: btn-warning ==== */
+/* مستخدم في زر "تسجيل الخروج" ولم يكن معرّفاً في components.css — تمت
+   إضافته هنا بنفس نمط .btn-danger / .btn-success الموجودين مسبقاً، وهو
+   عام النطاق عمداً (غير مقيّد بـ .profile-page) ليكون متاحاً لأي صفحة أخرى
+   تحتاج لزر "تحذيري" غير مدمّر مستقبلاً. */
+.btn-warning {
+  background: linear-gradient(45deg, var(--warning), var(--warning-light));
+  color: #543500;
+  box-shadow: 0 4px 15px rgba(var(--warning-rgb), 0.4);
+}
+
+.btn-warning:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(var(--warning-rgb), 0.6);
+}
+
+
+/* ==== 20 · الاستجابة للشاشات المختلفة ==== */
+
+@media (max-width: 991.98px) {
+  .profile-header {
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .user-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .profile-header-section {
+    padding-block: var(--space-5) var(--space-4);
+  }
+
+  .profile-identity {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-4);
+  }
+
+  .profile-avatar-wrapper {
+    --aw-size: 116px;
+    --aw-border: 3.5px;
+  }
+
+  .profile-identity-info {
+    align-items: center;
+  }
+
+  .profile-badge-row,
+  .profile-meta-row {
+    justify-content: center;
+  }
+
+  .streak-badge {
+    align-self: center;
+  }
+
+  .profile-name {
+    font-size: var(--font-size-2xl);
+  }
+
+  .profile-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .favorites-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .badges-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
+
+  .avatar-selector-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-2);
+  }
+
+  .avatar-sprite-preview {
+    width: 44px;
+    height: 44px;
+  }
+
+  .streak-card-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .teacher-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guest-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .guest-actions .btn {
+    width: 100%;
+  }
+}
+
+
+/* ==== 21 · الوضع الليلي ==== */
+/* معظم الألوان تتبدّل تلقائياً لأنها تعتمد على متغيرات -light (تتغيّر
+   قيمتها داخل [data-theme="dark"] في variables.css). هذا القسم فقط
+   لما يحتاج معالجة إضافية: تدرجات لونية بقيم صريحة، شدة الظلال،
+   وتباين العناصر شبه الشفافة. */
+
+[data-theme="dark"] {
+
+  .profile-header {
+    background: linear-gradient(160deg, var(--surface-light), rgba(var(--primary-rgb), 0.08));
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  .change-avatar-btn {
+    border-color: var(--surface-light);
+  }
+
+  .user-detail-card,
+  .teacher-stat,
+  .badge-item,
+  .favorite-card,
+  .activity-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: var(--border-color-light);
+  }
+
+  .badge-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .detail-row {
+    border-bottom-color: var(--border-color-light);
+  }
+
+  .avatar-sprite-preview {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .avatar-option:hover {
+    background-color: var(--hover-light);
+  }
+
+  .avatar-option.selected {
+    background-color: rgba(var(--primary-rgb), 0.15);
+  }
+
+  .streak-achievement-card {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 87, 34, 0.08));
+    border-color: rgba(255, 152, 0, 0.3);
+  }
+
+  .streak-count,
+  .streak-big-number {
+    color: #ffb74d;
+  }
+
+  .color-swatch {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  }
+
+  .switch .slider::before {
+    background-color: #f5f5f5;
+  }
+
+  .error-state i {
+    color: var(--warning-light);
+  }
+
+  .teacher-stat-value {
+    filter: brightness(1.15);
+  }
+}
+
+
+/* ==== 22 · رؤوس التبويبات (المفضلة / الإنجازات / النشاط) ==== */
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--text-primary-light);
+  margin-bottom: var(--space-1);
+}
+
+/* أيقونة دائرية ملوّنة داخل العنوان — نفس اسم الكلاس (favorites-icon /
+   achievements-icon / activity-icon) يُستخدم مرة واحدة فقط هنا كعنصر <i>
+   مباشر داخل h2.section-title، بعكس السياق الآخر لـ .activity-icon
+   المقيّد بـ .activity-card (راجع قسم 15) */
+.section-title i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-base);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.section-title .favorites-icon {
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+}
+
+.section-title .achievements-icon {
+  background: linear-gradient(45deg, #ffb300, #ff8f00);
+}
+
+.section-title .activity-icon {
+  background: linear-gradient(45deg, var(--info), #0091ea);
+}
+
+.section-subtitle {
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-sm);
+  margin-bottom: 0;
+  /* محاذاة تحت النص بجوار الأيقونة، وليس تحت الأيقونة نفسها */
+  margin-inline-start: calc(40px + var(--space-3));
+}
+
+@media (max-width: 480px) {
+  .section-subtitle {
+    margin-inline-start: 0;
+  }
+
+  .section-title {
+    font-size: var(--font-size-lg);
+  }
+}
